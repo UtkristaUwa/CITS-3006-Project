@@ -15,7 +15,7 @@ This project tracks the group's work on the CITS3006 Penetration Testing unit pr
 https://uwacyber.gitbook.io/cits3006/cits3006-assessments/project
 
 
-Grading shape (for reference)
+## Grading 
 
 25% Creating CTF Challenges (T1) 
 10% Solving Live (T2-1) 
