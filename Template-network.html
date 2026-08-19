@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Robotics — Network Topology (Draft)</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6; /* office LAN tier */
+    --series-1-soft:  #cde2fb;
+    --series-2:       #eb6834; /* restricted VLAN tier */
+    --series-2-soft:  #fbdccb;
+    --series-6:       #008300; /* attacker / entry */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page-plane:     #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --series-1-soft:  #16324f;
+      --series-2:       #d95926;
+      --series-2-soft:  #4a2413;
+      --series-6:       #008300;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page-plane:     #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --series-1-soft:  #16324f;
+    --series-2:       #d95926;
+    --series-2-soft:  #4a2413;
+    --series-6:       #008300;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page-plane);
+    color: var(--text-primary);
+  }
+  .viz-root {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 32px 40px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  .draft-pill {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--series-2);
+    background: var(--series-2-soft);
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .theme-toggle {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    margin-left: 8px;
+  }
+  .canvas-wrap {
+    margin-top: 20px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .tier-label {
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--text-secondary);
+  }
+  .tier-sub {
+    font-size: 10.5px;
+    fill: var(--text-muted);
+  }
+  .box-title {
+    font-size: 13px;
+    font-weight: 600;
+    fill: var(--text-primary);
+  }
+  .box-ip {
+    font-size: 11px;
+    fill: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .box-tag {
+    font-size: 10px;
+    fill: var(--text-muted);
+  }
+  .edge-label {
+    font-size: 10px;
+    fill: var(--text-muted);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .legend-line { width: 22px; height: 0; border-top: 2px solid var(--text-muted); flex-shrink: 0; }
+  .notes {
+    margin-top: 22px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .notes strong { color: var(--text-primary); }
+  table.picks {
+    margin-top: 8px;
+    border-collapse: collapse;
+    font-size: 12px;
+    width: 100%;
+  }
+  table.picks th, table.picks td {
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--gridline);
+    color: var(--text-secondary);
+  }
+  table.picks th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  table.picks td.host { color: var(--text-primary); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="viz-root">
+
+  <div class="header">
+    <div>
+      <h1>Meridian Robotics — Network Topology</h1>
+      <p class="subtitle">Draft proposal for the shared CTF environment · fictional in-universe theme: internal pentest engagement</p>
+    </div>
+    <div style="display:flex; align-items:center;">
+      <span class="draft-pill">DRAFT — not yet team-approved</span>
+      <button class="theme-toggle" onclick="const r=document.documentElement; r.setAttribute('data-theme', r.getAttribute('data-theme')==='dark'?'light':'dark');">Toggle theme</button>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <svg viewBox="0 0 1040 620" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"></path>
+        </marker>
+      </defs>
+
+      <!-- Attacker / participant range -->
+      <rect x="40" y="30" width="230" height="56" rx="8" fill="none" stroke="var(--series-6)" stroke-width="1.5" stroke-dasharray="4 3"></rect>
+      <text x="56" y="52" class="box-title">Participant / attacker</text>
+      <text x="56" y="70" class="box-ip">10.60.1.100 – 10.60.1.200</text>
+
+      <!-- Gateway -->
+      <rect x="330" y="30" width="150" height="56" rx="8" fill="var(--surface-1)" stroke="var(--border)" stroke-width="1.5"></rect>
+      <text x="346" y="52" class="box-title">Gateway</text>
+      <text x="346" y="70" class="box-ip">10.60.1.1</text>
+
+      <line x1="270" y1="58" x2="330" y2="58" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+
+      <!-- Office LAN tier -->
+      <rect x="40" y="120" width="620" height="220" rx="12" fill="none" stroke="var(--series-1)" stroke-width="1.5" stroke-dasharray="5 4"></rect>
+      <text x="56" y="144" class="tier-label">Office LAN — 10.60.1.0/24</text>
+      <text x="56" y="160" class="tier-sub">directly reachable from the participant range</text>
+
+      <line x1="405" y1="86" x2="405" y2="120" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+
+      <!-- Machine A -->
+      <rect x="70" y="190" width="170" height="120" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
+      <text x="88" y="216" class="box-title">Machine A</text>
+      <text x="88" y="234" class="box-ip">10.60.1.10</text>
+      <text x="88" y="254" class="box-tag">web vuln (foothold) — TBD</text>
+      <text x="88" y="270" class="box-tag">network vuln — TBD</text>
+      <text x="88" y="286" class="box-tag">horiz. + vert. PE, RE</text>
+      <text x="88" y="302" class="box-tag" font-weight="700">owner: TBD</text>
+
+      <!-- Machine B -->
+      <rect x="270" y="190" width="170" height="120" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
+      <text x="288" y="216" class="box-title">Machine B</text>
+      <text x="288" y="234" class="box-ip">10.60.1.11</text>
+      <text x="288" y="254" class="box-tag">web vuln — TBD</text>
+      <text x="288" y="270" class="box-tag">network vuln — TBD</text>
+      <text x="288" y="286" class="box-tag">horiz. + vert. PE, RE</text>
+      <text x="288" y="302" class="box-tag" font-weight="700">owner: TBD</text>
+
+      <!-- Machine C -->
+      <rect x="470" y="190" width="170" height="120" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
+      <text x="488" y="216" class="box-title">Machine C</text>
+      <text x="488" y="234" class="box-ip">10.60.1.12</text>
+      <text x="488" y="254" class="box-tag">web vuln — TBD</text>
+      <text x="488" y="270" class="box-tag">network vuln — TBD</text>
+      <text x="488" y="286" class="box-tag">horiz. + vert. PE, RE</text>
+      <text x="488" y="302" class="box-tag" font-weight="700">owner: TBD</text>
+
+      <!-- Restricted VLAN tier -->
+      <rect x="180" y="420" width="420" height="150" rx="12" fill="none" stroke="var(--series-2)" stroke-width="1.5" stroke-dasharray="5 4"></rect>
+      <text x="196" y="444" class="tier-label">Restricted VLAN — 10.60.2.0/24</text>
+      <text x="196" y="460" class="tier-sub">not directly routable — reached by pivoting w/ creds from A/B/C</text>
+
+      <!-- Adv 1 -->
+      <rect x="210" y="480" width="170" height="70" rx="10" fill="var(--series-2-soft)" stroke="var(--series-2)" stroke-width="1.5"></rect>
+      <text x="228" y="504" class="box-title">Adv. Service #1</text>
+      <text x="228" y="520" class="box-ip">10.60.2.20 · AI assistant</text>
+      <text x="228" y="536" class="box-tag" font-weight="700">owner: TBD</text>
+
+      <!-- Adv 2 -->
+      <rect x="420" y="480" width="170" height="70" rx="10" fill="var(--series-2-soft)" stroke="var(--series-2)" stroke-width="1.5"></rect>
+      <text x="438" y="504" class="box-title">Adv. Service #2</text>
+      <text x="438" y="520" class="box-ip">10.60.2.21 · Kernel/Windows</text>
+      <text x="438" y="536" class="box-tag" font-weight="700">owner: TBD</text>
+
+      <!-- Fan-in credential arrows -->
+      <path d="M 155 310 C 155 400, 250 420, 295 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
+      <path d="M 555 310 C 555 400, 400 420, 315 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
+      <path d="M 355 310 C 355 400, 460 420, 495 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
+      <path d="M 585 310 C 585 400, 540 420, 515 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
+
+      <text x="130" y="400" class="edge-label">creds</text>
+      <text x="470" y="400" class="edge-label">creds</text>
+      <text x="360" y="422" class="edge-label">creds</text>
+      <text x="560" y="422" class="edge-label">creds</text>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="swatch" style="background:var(--series-1)"></span>Office LAN tier (A / B / C, self-contained root paths)</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--series-2)"></span>Restricted VLAN tier (advanced services, fan-in only)</div>
+    <div class="legend-item"><span class="legend-line"></span>Credential path (rooting a machine unlocks the arrow's target)</div>
+  </div>
+
+  <div class="notes">
+    <strong>Design rule:</strong> every machine in the Office LAN tier is fully rootable on its own — nothing in that tier depends on the Restricted VLAN. The two advanced services are fan-in points reached by two alternate routes each (A or C → Adv 1; B or C → Adv 2), never a loop back out.
+
+    <table class="picks">
+      <tr><th>Host</th><th>Role</th><th>IP</th><th>Owner</th><th>Notes</th></tr>
+      <tr><td class="host">Machine A</td><td>Public-facing dev/staging server</td><td>10.60.1.10</td><td>TBD</td><td>web vuln = initial foothold</td></tr>
+      <tr><td class="host">Machine B</td><td>HR / finance internal box</td><td>10.60.1.11</td><td>TBD</td><td>fits IDOR/CSRF-style access issues</td></tr>
+      <tr><td class="host">Machine C</td><td>Ops / support box</td><td>10.60.1.12</td><td>TBD</td><td>fits internal/network-facing vulns</td></tr>
+      <tr><td class="host">Adv. Service #1</td><td>Internal AI support-ticket assistant</td><td>10.60.2.20</td><td>TBD</td><td>reachable via A or C creds</td></tr>
+      <tr><td class="host">Adv. Service #2</td><td>Legacy build/CI server (kernel/Windows)</td><td>10.60.2.21</td><td>TBD</td><td>reachable via B or C creds</td></tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>
