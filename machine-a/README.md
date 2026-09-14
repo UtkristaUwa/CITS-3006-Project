@@ -2,9 +2,9 @@
 
 CITS3006 CTF project — Machine A, owned by aki. Built so far: the **web
 vulnerability (IDOR)**, the **network vulnerability (ARP spoofing →
-plaintext credential sniffing)**, and the **horizontal privilege
-escalation** path. Vertical PE and the RE vuln are not built yet — see
-"Still to build" at the bottom.
+plaintext credential sniffing)**, the **horizontal privilege escalation**
+path, and the **vertical privilege escalation** path. The RE vuln is not
+built yet — see "Still to build" at the bottom.
 
 ## Theme
 
@@ -62,9 +62,14 @@ manually editing the URL to `/ticket/<ref>`.
    - `ops_svc` credentials (`ops_svc / N3twork_Ops_2026!`) for a service on
      port 2222 on the ops/build host — this is the intended feed into the
      **network vulnerability** and the **horizontal PE** path below.
-   - A mention that the `sysadmin` SSH key still uses passphrase
-     `M3ridian_D3v!` — flagged as a lead for **vertical PE** later.
    - The flag: `FLAG{idor_tickets_leak_ops_creds}`
+
+   Note: an earlier draft also disclosed the `sysadmin` SSH key passphrase
+   directly in this ticket. That was deliberately removed — reaching
+   vertical PE now requires having already solved horizontal PE first (see
+   below), rather than letting the IDOR alone shortcut straight to root.
+   Piling every downstream secret behind one disclosure would have read as
+   one vulnerability wearing three flags rather than a real chain.
 
 No automated scanner solves this by default: there's no sequential ID space
 to brute-force (refs are opaque, non-sequential strings), and reaching the
@@ -170,22 +175,54 @@ Not automatable by a generic scanner: it requires already holding
 unexpected secondary group, and connecting that group to a specific path
 the game only hinted at via an old ticket.
 
+## The vertical privilege escalation: sysadmin backup archive → sudo → root
+
+Like horizontal PE, this lives at the OS level. Provisioning is in
+`provision_vertical_pe.sh` — run it once as root, **after**
+`provision_horizontal_pe.sh` (it depends on the `build` user and
+`/srv/build` already existing).
+
+Once an attacker has pivoted to `build` (via horizontal PE), simply
+exploring `/srv/build/backups/pre-audit-2026-07-09/` — a directory `build`
+already owns, no further permission bug needed — turns up three dated home
+directory backups from a rushed pre-audit sweep. Two (`jchen`, `mfoster`)
+are boring. The third, `sysadmin_home.tar.gz`, contains `sysadmin`'s
+encrypted SSH private key plus a note (also left by `ops_svc`, same
+folder) explaining the passphrase was temporarily reset to a default value
+to get an automated backup-verification step to pass, and never rotated
+back. `sysadmin` has real sudo rights and — deliberately — no password set
+at all, so the key and its passphrase are the *only* way in.
+
+This is the redesign point worth remembering for the report: an earlier
+draft disclosed this passphrase directly via the web IDOR, which would
+have let an attacker skip straight from the web vuln to root without ever
+touching horizontal PE. Moving the secret into an artifact only reachable
+via the `build` foothold forces the real order: web IDOR → creds →
+horizontal PE → recon as `build` → vertical PE.
+
+### Sample solution (vertical PE)
+
+1. From the `build` shell (after horizontal PE):
+   `ls -la /srv/build/backups/pre-audit-2026-07-09/`
+2. Extract the real one: `tar -xzf sysadmin_home.tar.gz -C /tmp/loot`
+3. Inside: `.ssh/id_ed25519` (encrypted) and `backup_notes.txt`, which
+   discloses the passphrase (`M3ridian_D3v!`).
+4. `ssh -i /tmp/loot/sysadmin_home/.ssh/id_ed25519 sysadmin@<machine-a-ip>`
+5. `sudo cat /root/flag_vertical.txt` →
+   `FLAG{vertical_sysadmin_backup_key_sudo_root}`
+
 ## Still to build (not done yet)
 
-- **Vertical privilege escalation** — e.g. using the leaked SSH passphrase
-  lead (`M3ridian_D3v!`, from ticket `MRB-7E42D9`) to escalate to
-  `sysadmin`/root. Possible future hook: `build` having write access to
-  `/srv/build` could chain into a root-owned cron job that executes
-  something there — not built, just flagged as an idea in
-  `provision_horizontal_pe.sh`.
 - **Reverse-engineering vulnerability** — not yet designed for this machine.
 - Harden everything else on the box (this app is deliberately the *only*
   intended web vuln — don't accidentally leave the Flask debugger/PIN
   active, or other unintended holes, in the final build. `debug=True` in
   `app.py` is fine for local dev but should be turned off before this ships
-  to the shared CTF network). Also confirm neither `ops_svc` nor `build`
-  ever picks up sudo rights or membership in a privileged group — that
-  would turn this into an unintended vertical PE path.
+  to the shared CTF network). Also confirm `ops_svc` and `build` never
+  pick up sudo rights or membership in a privileged group — both
+  `provision_horizontal_pe.sh` and `provision_vertical_pe.sh` sanity-check
+  this at the end of their runs, but re-verify after any manual changes to
+  the box.
 
 ## Notes for the report (exploit map)
 
@@ -220,3 +257,19 @@ the game only hinted at via an old ticket.
   (`build`); no privilege gain over root, by design — this is horizontal,
   not vertical
 - Flag: `FLAG{horizontal_ops_svc_group_perms_to_build}`
+
+**Vertical privilege escalation — sensitive backup left in a shared directory**
+- Vulnerability type: insecure storage of an encrypted credential (SSH key
+  + its passphrase, both recoverable from the same backup) reachable from
+  an already-compromised lower-privilege account
+- Entry point: as `build` (from horizontal PE), read
+  `/srv/build/backups/pre-audit-2026-07-09/sysadmin_home.tar.gz` — no
+  additional permission bug needed, `build` already owns the directory —
+  extract `sysadmin`'s encrypted private key and its passphrase from the
+  accompanying note, then SSH in as `sysadmin`
+- Impact: full escalation to root via `sysadmin`'s real sudo rights;
+  strictly requires horizontal PE to already be solved, since this is the
+  only place the secret exists (a deliberate redesign — an earlier draft
+  leaked this passphrase via the web IDOR directly, which would have let
+  vertical PE skip horizontal PE entirely)
+- Flag: `FLAG{vertical_sysadmin_backup_key_sudo_root}`

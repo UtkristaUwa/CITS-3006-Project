@@ -137,6 +137,12 @@ def seed():
     # The real target ticket: belongs to sysadmin (user_id 3), never linked
     # from jchen's or mfoster's dashboard. Only reachable by finding its ref
     # (e.g. via /activity) -- the IDOR.
+    #
+    # NOTE: this ticket used to also disclose the sysadmin SSH key
+    # passphrase directly. That was deliberately removed -- reaching
+    # vertical PE now requires having already solved horizontal PE first
+    # (see provision_vertical_pe.sh for where that secret lives instead).
+    # This ticket's job is just to feed the network vuln + horizontal PE.
     conn.execute(
         "INSERT INTO tickets (ref, user_id, subject, body, created_at) VALUES (?, ?, ?, ?, ?)",
         (
@@ -145,9 +151,7 @@ def seed():
             "Rotate ops_svc credentials before audit",
             "Reminder to rotate the ops_svc service account before the Q3 "
             "audit. Current creds for reference: ops_svc / N3twork_Ops_2026! "
-            "(used on the build/ops host, port 2222). Also flagging that the "
-            "sysadmin SSH key on this box still uses the default passphrase "
-            "'M3ridian_D3v!' -- fix before the external pentest.\n\n"
+            "(used on the build/ops host, port 2222).\n\n"
             "FLAG{idor_tickets_leak_ops_creds}",
             "2026-07-10 08:21",
         ),

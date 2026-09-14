@@ -30,9 +30,9 @@
 #
 # Both ops_svc and build are unprivileged service accounts with no sudo
 # rights — this is a lateral move to a different account at the SAME
-# privilege level, not an escalation to root. (Vertical PE stays a
-# separate, still-to-build path via the sysadmin SSH passphrase lead in the
-# same ticket MRB-7E42D9.)
+# privilege level, not an escalation to root. (Vertical PE is a separate
+# path — see provision_vertical_pe.sh, which must be run AFTER this script
+# and depends on `build` already existing.)
 #
 # ---------------------------------------------------------------------------
 # SAMPLE SOLUTION (intended solve path)
@@ -67,10 +67,10 @@
 # - build has NO sudo rights and is not in any privileged group — confirm
 #   this stays true if you touch the box later, or you'll accidentally turn
 #   this into a vertical PE path instead.
-# - `build`'s account is otherwise inert (no other services run as build on
-#   this box yet). If a later vertical-PE design wants a root-owned cron job
-#   that executes something writable by build, that would chain nicely off
-#   this foothold — flag as a "notes for report" idea, not built yet.
+# - build's foothold is also where vertical PE's own artifact lives
+#   (provision_vertical_pe.sh drops a backup archive under
+#   /srv/build/backups/ that build can already read) — don't run that
+#   script before this one.
 #
 set -euo pipefail
 
@@ -91,7 +91,10 @@ getent group "${DEPLOY_GROUP}" >/dev/null || groupadd "${DEPLOY_GROUP}"
 
 echo "[*] Creating user ${BUILD_USER}"
 if ! id "${BUILD_USER}" &>/dev/null; then
-  useradd -m -s /bin/bash -g "${BUILD_USER}" "${BUILD_USER}"
+  # No -g here: Ubuntu's default useradd behavior auto-creates a private
+  # group named after the user. Passing "-g build" would instead require a
+  # group called "build" to already exist, which it doesn't.
+  useradd -m -s /bin/bash "${BUILD_USER}"
 fi
 usermod -aG "${DEPLOY_GROUP}" "${BUILD_USER}"
 
@@ -165,4 +168,6 @@ Reminder before shipping this box:
   - ops_svc password: ${OPS_PASSWORD}
   - Verify neither ops_svc nor build has sudo rights: 'sudo -l -U ops_svc'
     and 'sudo -l -U build' should both show "not allowed to run sudo".
+  - Next: run provision_vertical_pe.sh (depends on build/${SRV_BUILD}
+    already existing, which they now do).
 EOF
