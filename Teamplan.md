@@ -6,7 +6,7 @@ AS of week 5
 
 **3 Machine Builders** — each owns one fully self-contained machine/chain: 
 
-- Machine A — Builder: _TBD_
+- Machine A — Builder: Utkrista
 - Machine B — Builder: _TBD_
 - Machine C — Builder: _TBD_
 

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}My Tickets — Meridian Robotics Dev Portal{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>My tickets</h1>
+  <table>
+    <tr><th>Ref</th><th>Subject</th><th>Opened</th></tr>
+    {% for t in tickets %}
+    <tr>
+      <td>{{ t['ref'] }}</td>
+      <td><a class="ticket-link" href="{{ url_for('view_ticket', ref=t['ref']) }}">{{ t['subject'] }}</a></td>
+      <td>{{ t['created_at'] }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3">No tickets yet.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
