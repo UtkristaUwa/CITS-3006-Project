@@ -53,7 +53,7 @@
 #      chmod 600 /tmp/loot/sysadmin_home/.ssh/id_ed25519
 #      ssh -i /tmp/loot/sysadmin_home/.ssh/id_ed25519 sysadmin@<machine-a-ip>
 #      (passphrase when prompted: M3ridian_D3v!)
-# 5. sysadmin has real sudo rights:
+# 5. sysadmin has real, passwordless sudo rights (NOPASSWD -- see below):
 #      sudo cat /root/flag_vertical.txt
 #      -> FLAG{vertical_sysadmin_backup_key_sudo_root}
 #
@@ -94,6 +94,15 @@ if ! id "${SYSADMIN_USER}" &>/dev/null; then
 fi
 usermod -aG sudo "${SYSADMIN_USER}"
 passwd -l "${SYSADMIN_USER}" >/dev/null   # lock password auth -- key-only account
+
+# NOPASSWD is required here, not just convenient: locking the account's
+# password (above) also removes the only password sudo would otherwise
+# check against, so a normal password-prompting sudo rule can NEVER
+# succeed for this user. The SSH key is the account's one and only
+# credential -- once you're in as sysadmin, sudo shouldn't demand a
+# second secret we never disclosed anywhere.
+echo "${SYSADMIN_USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${SYSADMIN_USER}"
+chmod 440 "/etc/sudoers.d/${SYSADMIN_USER}"
 
 echo "[*] Generating sysadmin's encrypted SSH keypair"
 SYSADMIN_HOME="/home/${SYSADMIN_USER}"
@@ -173,6 +182,8 @@ Reminder:
   - sysadmin login is key-only (password locked) -- the encrypted key AND
     its passphrase both have to come from the backup archive.
   - Passphrase: ${SYSADMIN_PASSPHRASE} (also baked into backup_notes.txt).
-  - Flag lives at /root/flag_vertical.txt, root-only -- only readable after
-    'sudo cat' or similar, once logged in as sysadmin.
+  - sudo for sysadmin is NOPASSWD (see /etc/sudoers.d/${SYSADMIN_USER}) --
+    required since the locked password can't back a normal sudo prompt.
+  - Flag lives at /root/flag_vertical.txt, root-only -- readable via
+    'sudo cat' once logged in as sysadmin, no password prompt.
 EOF
