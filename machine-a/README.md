@@ -1,10 +1,12 @@
 # Machine A — Meridian Robotics Dev Portal
 
-CITS3006 CTF project — Machine A, owned by aki. Built so far: the **web
-vulnerability (IDOR)**, the **network vulnerability (ARP spoofing →
-plaintext credential sniffing)**, the **horizontal privilege escalation**
-path, and the **vertical privilege escalation** path. The RE vuln is not
-built yet — see "Still to build" at the bottom.
+CITS3006 CTF project — Machine A, owned by aki. All five required vuln
+categories are now built: the **web vulnerability (IDOR)**, the **network
+vulnerability (ARP spoofing → plaintext credential sniffing)**, the
+**horizontal privilege escalation** path, the **vertical privilege
+escalation** path, and the **reverse-engineering vulnerability**. See
+"Still to do" at the bottom for what's left (mostly hardening/cleanup, not
+new vulns).
 
 ## Theme
 
@@ -211,10 +213,45 @@ horizontal PE → recon as `build` → vertical PE.
 5. `sudo cat /root/flag_vertical.txt` →
    `FLAG{vertical_sysadmin_backup_key_sudo_root}`
 
-## Still to build (not done yet)
+## The reverse-engineering vulnerability: meridian-diag crackme
 
-- **Reverse-engineering vulnerability** — not yet designed for this machine.
-- Harden everything else on the box (this app is deliberately the *only*
+Source lives at `re-challenge/meridian_diag.c` in this folder — **never**
+copied onto the VM itself. `provision_re.sh` compiles it fresh (stripped,
+no debug symbols) and installs the binary at `/opt/meridian-tools/`.
+Independent of the PE chain on purpose: any authenticated user on the box
+(even just `ops_svc`, the earliest foothold) can find and copy the binary
+off to reverse-engineer entirely on their own machine, offline. This
+deliberately tests a different skill (static/dynamic binary analysis)
+rather than adding another rung to the same escalation ladder.
+
+The binary is a fake "firmware diagnostic utility" that prompts for an
+engineer unlock code. Both the code and the flag are stored XOR-encoded
+against a hardcoded 8-byte key inside the binary — `strings` on it reveals
+nothing. Reaching the flag requires actually disassembling `main` (Ghidra,
+`objdump -d`, or gdb) to recover the XOR key and either compute the real
+unlock code or patch the comparison to always succeed.
+
+### Sample solution (RE)
+
+1. From any OS foothold (e.g. `ops_svc`), find and pull the binary:
+   `ls -la /opt/meridian-tools/`, then copy it to your own machine.
+2. `strings meridian-diag` — nothing useful, confirming it's encoded, not
+   plaintext.
+3. Disassemble the comparison loop in `main`: it XORs each input byte
+   against a repeating key ("Meridian" — visible as bytes
+   `4d 65 72 69 64 69 61 6e`) and compares against a second hardcoded
+   array.
+4. XOR-decode that array against the same key to recover the real code
+   (`R0b0t1cs-Eng-7734`), or just patch the post-comparison conditional
+   jump so any input passes.
+5. Run it: `./meridian-diag` → `FLAG{re_xor_unlock_meridian_diag}`
+
+Not solvable by `strings`, brute force (17-char keyspace), or any web/
+network scanner — this one genuinely requires binary analysis.
+
+## Still to do
+
+- General hardening pass on the box (this app is deliberately the *only*
   intended web vuln — don't accidentally leave the Flask debugger/PIN
   active, or other unintended holes, in the final build. `debug=True` in
   `app.py` is fine for local dev but should be turned off before this ships
@@ -223,6 +260,9 @@ horizontal PE → recon as `build` → vertical PE.
   `provision_horizontal_pe.sh` and `provision_vertical_pe.sh` sanity-check
   this at the end of their runs, but re-verify after any manual changes to
   the box.
+- Run `provision_re.sh` on the VM and verify the sample solution end to
+  end (same way horizontal/vertical PE were verified) before considering
+  Machine A fully done.
 
 ## Notes for the report (exploit map)
 
@@ -273,3 +313,14 @@ horizontal PE → recon as `build` → vertical PE.
   leaked this passphrase via the web IDOR directly, which would have let
   vertical PE skip horizontal PE entirely)
 - Flag: `FLAG{vertical_sysadmin_backup_key_sudo_root}`
+
+**Reverse engineering — XOR-encoded crackme**
+- Vulnerability type: weak/reversible obfuscation of a credential check and
+  its payload inside a compiled binary (no cryptographic protection, just
+  XOR against a static key)
+- Entry point: `/opt/meridian-tools/meridian-diag`, world-executable;
+  reachable from any OS foothold, independent of the PE chain
+- Impact: recovering the encoded unlock code (or patching the check)
+  requires genuine static/dynamic binary analysis — not automatable by
+  `strings`, brute force, or a network/web scanner
+- Flag: `FLAG{re_xor_unlock_meridian_diag}`
