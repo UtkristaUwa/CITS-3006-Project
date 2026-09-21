@@ -1,4 +1,5 @@
-# CITS-3006
+# CITS-3006-Project
+A CTF project consisting of three machines, each with five core vulnerabilities and two advanced vulnerabilities chained to 3 machines
 
 ## Team members
 
