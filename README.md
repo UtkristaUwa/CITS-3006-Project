@@ -1,13 +1,20 @@
-# CITS-3006-Project
-
-This project tracks the group's work on the CITS3006 Penetration Testing unit project: building a themed CTF environment. 
-
+# CITS-3006
 
 ## Team members
 
 | NAME                     | StudentID   |   GitHubID     |
 |--------------------------|-------------|----------------|
 | Utkrista Sen             | 24145884    | UtkristaUwa    |
+
+## Machines and Vulns
+ 
+| Machine | Owner | Web | Network | Horizontal PE | Vertical PE | RE |
+|---|---|---|---|---|---|---|
+| **A** | Utkrista | IDOR | ARP spoofing MITM | Group misconfig | Leaked backup | XOR encoded |
+| **B** | TBD | TBD | TBD | TBD | TBD | TBD |
+| **C** | TBD | TBD | TBD | TBD | TBD | TBD |
+ 
+## Advanced Vluns
 
 
 ## link to project 
