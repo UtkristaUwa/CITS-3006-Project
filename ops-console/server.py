@@ -39,7 +39,7 @@ class OpsConsoleHandler(socketserver.StreamRequestHandler):
                 self.wfile.write(
                     b"All systems nominal. Reminder: ticket MRB-7E42D9 still "
                     b"open (ops_svc credential rotation).\r\n"
-                    b"FLAG{arp_spoof_opsconsole_sysadmin_sniff}\r\n"
+                    b"FLAG{2nd_flA6_ARP_D0wN_g00d_stuff}\r\n"
                 )
             else:
                 self.wfile.write(b"All systems nominal.\r\n")

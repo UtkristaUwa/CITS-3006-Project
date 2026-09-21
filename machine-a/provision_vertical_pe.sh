@@ -3,73 +3,14 @@
 # provision_vertical_pe.sh — Machine A (vertical privilege escalation)
 # CITS3006 CTF project — Meridian Robotics Dev Portal
 #
-# Run this as root AFTER provision_horizontal_pe.sh — it depends on the
-# `build` user and `/srv/build` already existing.
+# Run as root, AFTER provision_horizontal_pe.sh (depends on `build` and
+# /srv/build already existing).
 #
-# ---------------------------------------------------------------------------
-# THE VULNERABILITY (for the report / exploit map)
-# ---------------------------------------------------------------------------
-# This deliberately does NOT hand out the sysadmin SSH passphrase through
-# the web IDOR (an earlier draft did — cut on purpose). Reaching root now
-# strictly requires having already solved horizontal PE first, because the
-# only place the secret exists is inside a backup archive that `build`
-# already owns.
-#
-# In-universe justification: ops_svc ran a rushed pre-audit config sweep on
-# 2026-07-09 (the day before ops_svc's own creds get leaked in ticket
-# MRB-7E42D9), backing up several users' home directories into
-# /srv/build/backups/ for a compliance checklist. sysadmin's backup
-# includes their encrypted SSH private key, plus a note (also left by
-# ops_svc, in the same folder) explaining the passphrase was temporarily
-# reset to a default value to get an automated verification step to pass —
-# and never rotated back.
-#
-# Full chain: web IDOR -> ops_svc creds -> SSH as ops_svc -> horizontal PE
-# (deploy-group misconfig) -> build -> explore /srv/build/backups (build
-# already owns this directory, so no further vulnerability is needed to
-# read it — just recon) -> sysadmin's encrypted key + the passphrase note
-# -> decrypt the key -> SSH as sysadmin -> sudo -> root.
-#
-# sysadmin has NO password set (key-only login, enforced below) — brute
-# force / guessing gets an attacker nowhere. Both the key file AND its
-# passphrase have to be recovered from the backup, and the backup is only
-# reachable once horizontal PE has already been solved.
-#
-# ---------------------------------------------------------------------------
-# SAMPLE SOLUTION (intended solve path)
-# ---------------------------------------------------------------------------
-# 1. From the build foothold (see provision_horizontal_pe.sh), look around:
-#      ls -la /srv/build/backups/pre-audit-2026-07-09/
-#    -> several dated home-directory backups. jchen's and mfoster's are
-#       boring (no .ssh dirs at all). sysadmin's is the one that matters:
-#      sysadmin_home.tar.gz
-# 2. Extract it:
-#      mkdir /tmp/loot
-#      tar -xzf /srv/build/backups/pre-audit-2026-07-09/sysadmin_home.tar.gz -C /tmp/loot
-# 3. Inside: .ssh/id_ed25519 (encrypted private key), .ssh/id_ed25519.pub,
-#    and backup_notes.txt (see the note text embedded below) which
-#    discloses the passphrase.
-# 4. Use the key:
-#      chmod 600 /tmp/loot/sysadmin_home/.ssh/id_ed25519
-#      ssh -i /tmp/loot/sysadmin_home/.ssh/id_ed25519 sysadmin@<machine-a-ip>
-#      (passphrase when prompted: M3ridian_D3v!)
-# 5. sysadmin has real, passwordless sudo rights (NOPASSWD -- see below):
-#      sudo cat /root/flag_vertical.txt
-#      -> FLAG{vertical_sysadmin_backup_key_sudo_root}
-#
-# ---------------------------------------------------------------------------
-# DECOYS / hardening notes
-# ---------------------------------------------------------------------------
-# - jchen's and mfoster's backups are real tar.gz files too (not empty),
-#   just contain nothing sensitive — so "there are 3 backups, try them all"
-#   still requires actually opening each one rather than pattern-matching
-#   filenames.
-# - sysadmin's account has password auth locked (passwd -l) — the ONLY way
-#   in is the key + passphrase from the backup. Don't accidentally unlock
-#   the password later during testing and forget to re-lock it.
-# - Confirm ops_svc and build never end up with sudo — run
-#   'sudo -l -U ops_svc' and 'sudo -l -U build' after this script; both
-#   should say "not allowed to run sudo".
+# Vuln: `build` (from horizontal PE) can already read
+# /srv/build/backups/pre-audit-2026-07-09/, which holds a "pre-audit backup"
+# of sysadmin's home dir — their encrypted SSH key plus a note disclosing
+# the passphrase. sysadmin has no password (key-only, sudo NOPASSWD), so
+# that archive is the only way in. Full write-up: see the Exploit Report doc.
 #
 set -euo pipefail
 
@@ -93,14 +34,10 @@ if ! id "${SYSADMIN_USER}" &>/dev/null; then
   useradd -m -s /bin/bash "${SYSADMIN_USER}"
 fi
 usermod -aG sudo "${SYSADMIN_USER}"
-passwd -l "${SYSADMIN_USER}" >/dev/null   # lock password auth -- key-only account
+passwd -l "${SYSADMIN_USER}" >/dev/null   # key-only account, no password auth
 
-# NOPASSWD is required here, not just convenient: locking the account's
-# password (above) also removes the only password sudo would otherwise
-# check against, so a normal password-prompting sudo rule can NEVER
-# succeed for this user. The SSH key is the account's one and only
-# credential -- once you're in as sysadmin, sudo shouldn't demand a
-# second secret we never disclosed anywhere.
+# NOPASSWD: the locked password above means a normal password-prompting
+# sudo rule can never succeed for this user -- the key is its only credential.
 echo "${SYSADMIN_USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${SYSADMIN_USER}"
 chmod 440 "/etc/sudoers.d/${SYSADMIN_USER}"
 
@@ -119,7 +56,7 @@ chmod 600 "${SYSADMIN_HOME}/.ssh/authorized_keys"
 echo "[*] Building the pre-audit backup (the actual vertical PE artifact)"
 mkdir -p "${BACKUP_DIR}"
 
-# --- Decoys: real tar.gz files for the other users, nothing sensitive inside ---
+# Decoys: real tar.gz files for the other users, nothing sensitive inside.
 for u in jchen mfoster; do
   D=$(mktemp -d)
   mkdir -p "${D}/${u}_home"
@@ -131,7 +68,7 @@ EOF
   rm -rf "${D}"
 done
 
-# --- The real one: sysadmin's home backup, including the encrypted key ---
+# The real one: sysadmin's home backup, including the encrypted key.
 D=$(mktemp -d)
 mkdir -p "${D}/sysadmin_home/.ssh"
 cp "${KEY_TMP}/id_ed25519" "${D}/sysadmin_home/.ssh/id_ed25519"
@@ -154,7 +91,7 @@ find /srv/build/backups -type d -exec chmod 755 {} \;
 find /srv/build/backups -type f -exec chmod 644 {} \;
 
 echo "[*] Planting the flag (root-only)"
-echo "FLAG{vertical_sysadmin_backup_key_sudo_root}" > /root/flag_vertical.txt
+echo "FLAG{PE_V3rt1c4l_H4S_b3En_D0N3}" > /root/flag_vertical.txt
 chmod 600 /root/flag_vertical.txt
 
 echo "[*] Sanity checks"
@@ -178,12 +115,8 @@ cat <<EOF
 
 Done.
 
-Reminder:
-  - sysadmin login is key-only (password locked) -- the encrypted key AND
-    its passphrase both have to come from the backup archive.
-  - Passphrase: ${SYSADMIN_PASSPHRASE} (also baked into backup_notes.txt).
-  - sudo for sysadmin is NOPASSWD (see /etc/sudoers.d/${SYSADMIN_USER}) --
-    required since the locked password can't back a normal sudo prompt.
-  - Flag lives at /root/flag_vertical.txt, root-only -- readable via
-    'sudo cat' once logged in as sysadmin, no password prompt.
+  - sysadmin login is key-only; the encrypted key AND its passphrase both
+    have to come from the backup archive. Passphrase: ${SYSADMIN_PASSPHRASE}
+  - sudo for sysadmin is NOPASSWD (locked password can't back a prompt).
+  - Flag: /root/flag_vertical.txt, root-only, readable via 'sudo cat'.
 EOF

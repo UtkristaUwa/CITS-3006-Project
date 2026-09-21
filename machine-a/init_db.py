@@ -37,11 +37,7 @@ def seed():
     conn = sqlite3.connect(DB_PATH)
     conn.executescript(SCHEMA)
 
-    # --- Users ---
-    # id 1: jchen      (developer, the account participants start with)
-    # id 2: mfoster     (developer, a "normal" other user to prove the IDOR
-    #                    isn't just self-access)
-    # id 3: sysadmin    (admin, the high-value target ticket)
+    # jchen/mfoster: developer. sysadmin: admin, the IDOR target.
     conn.execute(
         "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
         ("jchen", "Summer2024!", "developer"),
@@ -55,10 +51,6 @@ def seed():
         ("sysadmin", "R00tR0b0tics#99", "admin"),
     )
 
-    # --- Tickets ---
-    # Two sysadmin tickets by design: a solver who spots "sysadmin" in the
-    # activity feed and assumes any sysadmin ticket is the jackpot hits the
-    # boring decoy (MRB-2D9A88) first and has to check both.
     conn.execute(
         "INSERT INTO tickets (ref, user_id, subject, body, created_at) VALUES (?, ?, ?, ?, ?)",
         (
@@ -122,7 +114,7 @@ def seed():
             "2026-07-09 16:47",
         ),
     )
-    # Decoy admin ticket -- deliberately boring, meant to be tried and rejected.
+    # Decoy admin ticket -- boring, meant to be tried and rejected.
     conn.execute(
         "INSERT INTO tickets (ref, user_id, subject, body, created_at) VALUES (?, ?, ?, ?, ?)",
         (
@@ -134,15 +126,7 @@ def seed():
             "2026-07-10 08:10",
         ),
     )
-    # The real target ticket: belongs to sysadmin (user_id 3), never linked
-    # from jchen's or mfoster's dashboard. Only reachable by finding its ref
-    # (e.g. via /activity) -- the IDOR.
-    #
-    # NOTE: this ticket used to also disclose the sysadmin SSH key
-    # passphrase directly. That was deliberately removed -- reaching
-    # vertical PE now requires having already solved horizontal PE first
-    # (see provision_vertical_pe.sh for where that secret lives instead).
-    # This ticket's job is just to feed the network vuln + horizontal PE.
+    # Real target: sysadmin's ticket, only reachable via /activity (the IDOR).
     conn.execute(
         "INSERT INTO tickets (ref, user_id, subject, body, created_at) VALUES (?, ?, ?, ?, ?)",
         (

@@ -1,14 +1,9 @@
 /*
  * Meridian Robotics -- Firmware Diagnostic Utility v2.1
  *
- * Internal ops/build tool. Engineers: if you've lost your unlock code,
- * contact the build team -- do not brute-force this over a live serial
- * link, it locks the rig for 10 minutes.
- *
  * CITS3006 CTF project -- Machine A, reverse-engineering vulnerability.
- * This source file is NOT shipped on the box -- only the compiled,
- * stripped binary is (see provision_re.sh). Keep this .c file in the repo
- * for the report/exploit map, never on the VM itself.
+ * Source only, never shipped on the VM -- provision_re.sh compiles it fresh
+ * (stripped, no debug symbols).
  */
 #include <stdio.h>
 #include <string.h>

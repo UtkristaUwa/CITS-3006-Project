@@ -10,7 +10,16 @@ import os
 import sqlite3
 from functools import wraps
 
-from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Flask,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 app = Flask(
     __name__,
@@ -21,10 +30,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-not-for-prod-CHANGE-ME")
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "machine-a", "portal.db")
 
-# Static flavor data for /activity -- not a DB table. Leaks which ticket refs
-# exist and who touched them without leaking ticket content, so recon
-# (finding a ref) and exploitation (viewing that ref) happen on separate
-# pages. Sorted newest-first by ts.
+# Recon data for /activity -- not a DB table. Newest-first by ts.
 ACTIVITY_LOG = [
     {"ts": "2026-07-10 08:21", "actor": "sysadmin", "action": "opened ticket", "ref": "MRB-7E42D9"},
     {"ts": "2026-07-10 08:10", "actor": "sysadmin", "action": "opened ticket", "ref": "MRB-2D9A88"},
@@ -98,27 +104,15 @@ def dashboard():
     return render_template("dashboard.html", tickets=tickets, username=session["username"])
 
 
-# --------------------------------------------------------------------------
-# Team activity feed -- a legitimate "team visibility" feature that leaks
-# cross-user data because nobody scoped it: every authenticated user sees
-# the exact same full list of all ticket refs, regardless of who they are.
-# This is where recon happens (which refs exist); exploitation happens on
-# the /ticket/<ref> page below.
-# --------------------------------------------------------------------------
+# Unscoped "team visibility" feature -- leaks every ticket ref to every
+# authenticated user. Recon happens here; exploitation on /ticket/<ref>.
 @app.route("/activity")
 @login_required
 def activity():
     return render_template("activity.html", entries=ACTIVITY_LOG)
 
 
-# --------------------------------------------------------------------------
-# VULNERABLE ENDPOINT — Insecure Direct Object Reference (IDOR)
-#
-# The ticket is looked up purely by the `ref` supplied in the URL. There is
-# no check that `tickets.user_id == session['user_id']`, so any
-# authenticated user can read any other user's ticket simply by knowing its
-# ref -- including tickets never linked from their own dashboard.
-# --------------------------------------------------------------------------
+# VULNERABLE: no check that tickets.user_id == session['user_id'].
 @app.route("/ticket/<ref>")
 @login_required
 def view_ticket(ref):
@@ -140,4 +134,6 @@ def view_ticket(ref):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Off by default -- set FLASK_DEBUG=1 locally. Never ship debug=True.
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
