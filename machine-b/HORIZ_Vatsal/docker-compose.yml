@@ -1,0 +1,7 @@
+services:
+  horiz03:
+    build: .
+    container_name: cits3006-horiz03
+    ports:
+      - "192.168.173.128:8082:5000"
+    restart: unless-stopped

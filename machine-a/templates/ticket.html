@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket['id'] }} — Meridian Robotics Dev Portal{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Ticket #{{ ticket['id'] }}: {{ ticket['subject'] }}</h1>
+  <p class="meta">Opened by {{ ticket['username'] }} on {{ ticket['created_at'] }}</p>
+  <div class="body-text">{{ ticket['body'] }}</div>
+  <p style="margin-top:20px;"><a class="ticket-link" href="{{ url_for('dashboard') }}">&larr; Back to my tickets</a></p>
+</div>
+{% endblock %}

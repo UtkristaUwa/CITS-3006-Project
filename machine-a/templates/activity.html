@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Team Activity — Meridian Robotics Dev Portal{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Team activity</h1>
+  <p class="meta">Recent ticket activity across the team.</p>
+  <table>
+    <tr><th>When</th><th>Who</th><th>Action</th><th>Ref</th></tr>
+    {% for e in entries %}
+    <tr>
+      <td>{{ e['ts'] }}</td>
+      <td>{{ e['actor'] }}</td>
+      <td>{{ e['action'] }}</td>
+      <td>{{ e['ref'] }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No recent activity.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+from Crypto.Cipher import AES
+from pathlib import Path
+import os
+
+KEY = b"CITS3006_ADV1KEY"          # 16-byte training key
+NONCE = b"CITS3006NONCE12"        # 15 bytes; CTR nonce
+
+known_plaintext = (
+    b"CITS3006 training message: the audit record is safe and "
+    b"contains no secret information."
+)
+
+flag = b"CITS3006{ADV01_AES_CTR_NONCE_REUSE}"
+
+cipher1 = AES.new(KEY, AES.MODE_CTR, nonce=NONCE)
+ciphertext_known = cipher1.encrypt(known_plaintext)
+
+cipher2 = AES.new(KEY, AES.MODE_CTR, nonce=NONCE)
+ciphertext_flag = cipher2.encrypt(flag)
+
+Path("known_plaintext.txt").write_bytes(known_plaintext)
+Path("challenge.txt").write_text(
+    "ADV-01 — AES-CTR Nonce Reuse\n\n"
+    "A protected system encrypted two messages using AES-CTR.\n"
+    "The same key and nonce were accidentally reused.\n\n"
+    f"Nonce (hex): {NONCE.hex()}\n"
+    f"Known ciphertext (hex): {ciphertext_known.hex()}\n"
+    f"Flag ciphertext (hex): {ciphertext_flag.hex()}\n"
+)
+
+Path("adv01_flag.txt").write_bytes(flag)
+
+print("ADV-01 challenge generated.")
