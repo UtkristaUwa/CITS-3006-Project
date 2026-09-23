@@ -24,11 +24,11 @@ from flask import (
 app = Flask(
     __name__,
     template_folder=os.path.join(os.path.dirname(__file__), "templates"),
-    static_folder=os.path.join(os.path.dirname(__file__), "machine-a", "static"),
+    static_folder=os.path.join(os.path.dirname(__file__), "static"),
 )
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-not-for-prod-CHANGE-ME")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "machine-a", "portal.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "portal.db")
 
 # Recon data for /activity -- not a DB table. Newest-first by ts.
 ACTIVITY_LOG = [
