@@ -6,7 +6,7 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 | NAME                     | StudentID   |   GitHubID     |
 |--------------------------|-------------|----------------|
 | Utkrista Sen             | 24145884    | UtkristaUwa    |
-|  Vatsal Padsala           | 24323822      
+|  Vatsal Padsala          | 24323822    | vatsalpadsala28082
 | Het Patel                | 24498631 |  Het-eng      |
 ## Machines and Vulns
  
