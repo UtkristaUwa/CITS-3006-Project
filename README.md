@@ -16,8 +16,7 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 | **C** | TBD | TBD | TBD | TBD | TBD | TBD |
  
 ## Advanced Vluns
-
-
+| **D** | Vraj | AES-CTR nonce reuse | Cryptographic vulnerability | Known-plaintext attack | Keystream recovery | XOR flag decryption |
 ## link to project 
 
 https://uwacyber.gitbook.io/cits3006/cits3006-assessments/project
