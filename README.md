@@ -6,14 +6,16 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 | NAME                     | StudentID   |   GitHubID     |
 |--------------------------|-------------|----------------|
 | Utkrista Sen             | 24145884    | UtkristaUwa    |
-
+|  Vatsal Padsala           | 24323822      
+| Het Patel                | 24498631 |  Het-eng      |
 ## Machines and Vulns
  
 | Machine | Owner | Web | Network | Horizontal PE | Vertical PE | RE |
 |---|---|---|---|---|---|---|
 | **A** | Utkrista | IDOR | ARP spoofing MITM | Group misconfig | Leaked backup | XOR encoded |
-| **B** | TBD | TBD | TBD | TBD | TBD | TBD |
-| **C** | TBD | TBD | TBD | TBD | TBD | TBD |
+| **B** | Vatsal  | Server-side template injection | Unauthenticated Redis exposure|  JWT forgery | SUID shared-library hijacking |Transformed validation  |
+| **C** | Het | XSS | Anonymous Rsync information disclosure | Idor | SUID Arbitrary File Write | Obfuscated Secret Recovery |
+
  
 ## Advanced Vluns
 | **D** | Vraj | AES-CTR nonce reuse | Cryptographic vulnerability | Known-plaintext attack | Keystream recovery | XOR flag decryption |
