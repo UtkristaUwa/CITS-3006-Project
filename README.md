@@ -15,9 +15,11 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 | **A** | Utkrista | IDOR | ARP spoofing MITM | Group misconfig | Leaked backup | XOR encoded |
 | **B** | Vatsal  | Server-side template injection | Unauthenticated Redis exposure|  JWT forgery | SUID shared-library hijacking |Transformed validation  |
 | **C** | Het | XSS | Anonymous Rsync information disclosure | Idor | SUID Arbitrary File Write | Obfuscated Secret Recovery |
+
  
 ## Advanced Vluns
-
+| **D** | Vraj | AES-CTR nonce reuse | Cryptographic vulnerability | Known-plaintext attack | Keystream recovery | XOR flag decryption |
+## link to project 
 
 ## link to project 
 
