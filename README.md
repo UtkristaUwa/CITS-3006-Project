@@ -12,8 +12,7 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 | Machine | Owner | Web | Network | Horizontal PE | Vertical PE | RE |
 |---|---|---|---|---|---|---|
 | **A** | Utkrista | IDOR | ARP spoofing MITM | Group misconfig | Leaked backup | XOR encoded |
-| **B** | Vatsal  | Server-side template injection | Unauthenticated Redis exposure
- |  JWT forgery | SUID shared-library hijacking |Transformed validation  |
+| **B** | Vatsal  | Server-side template injection | Unauthenticated Redis exposure|  JWT forgery | SUID shared-library hijacking |Transformed validation  |
 | **C** | TBD | TBD | TBD | TBD | TBD | TBD |
  
 ## Advanced Vluns
