@@ -19,7 +19,7 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 ## Advanced Vluns
 |Machine |	Owner |	Challenge |	Category	| Attack method |	Key technique |	Result |
 | **D**  |	Vraj	 |AES-CTR nonce reuse	| Cryptographic vulnerability |	Known-plaintext attack |	Keystream recovery | XOR flag decryption |
-| **E**  | Maharshi | 
+| **E** | Maharshi | AI problem injection | AI-related vulnerability | Prompt injection | Instruction override / context manipulation | Protected data and flag extraction |
 
 ## link to project 
 
