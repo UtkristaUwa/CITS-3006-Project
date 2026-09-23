@@ -47,22 +47,22 @@ sudo bash provision_re.sh
         └──────────────────────────────────────────────────────┘
                                 │  (either path yields ops_svc creds)
                                 ▼
-   SSH to Machine A as ops_svc
+        SSH to Machine A as ops_svc
                                 │
                                 ▼  HORIZONTAL PE (group misconfig)
-   ops_svc is in `deploy` → deploy can READ /srv/build/.ssh/id_ed25519
-   → ssh -i stolen_key build@A  → FLAG 3 (/home/build/flag_horizontal.txt)
+         ops_svc is in `deploy` → deploy can READ /srv/build/.ssh/id_ed25519
+         → ssh -i stolen_key build@A  → FLAG 3 (/home/build/flag_horizontal.txt)
                                 │
                                 ▼  VERTICAL PE (leaked backup)
-     as build, read /srv/build/backups/pre-audit-2026-07-09/sysadmin_home.tar.gz
-      → contains sysadmin's ENCRYPTED ssh key + backup_notes.txt (passphrase M3ridian_D3v!)
-     → ssh -i sysadmin_key (passphrase) sysadmin@A
-     → sysadmin has NOPASSWD sudo → sudo cat /root/flag_vertical.txt → FLAG 4
+         as build, read /srv/build/backups/pre-audit-2026-07-09/sysadmin_home.tar.gz
+          → contains sysadmin's ENCRYPTED ssh key + backup_notes.txt (passphrase M3ridian_D3v!)
+         → ssh -i sysadmin_key (passphrase) sysadmin@A
+          → sysadmin has NOPASSWD sudo → sudo cat /root/flag_vertical.txt → FLAG 4
 
-     ── independent side quest, reachable from ANY shell ──
-     REVERSE ENGINEERING
-     copy /opt/meridian-tools/meridian-diag off-box → disassemble
-      → recover XOR key "Meridian" → decode unlock code R0b0t1cs-Eng-7734
-      → run tool, enter code → FLAG 5
+         ── independent side quest, reachable from ANY shell ──
+         REVERSE ENGINEERING
+         copy /opt/meridian-tools/meridian-diag off-box → disassemble
+          → recover XOR key "Meridian" → decode unlock code R0b0t1cs-Eng-7734
+          → run tool, enter code → FLAG 5
 
    
