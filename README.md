@@ -3,11 +3,12 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 
 ## Team members
 
-| NAME                     | StudentID   |   GitHubID     |
-|--------------------------|-------------|----------------|
-| Utkrista Sen             | 24145884    | UtkristaUwa    |
-|  Vatsal Padsala          | 24323822    | vatsalpadsala28082
-| Het Patel                | 24498631 |  Het-eng      |
+| NAME                     | StudentID   |   GitHubID         |
+|--------------------------|-------------|--------------------|
+| Utkrista Sen             | 24145884    | UtkristaUwa        |
+|  Vatsal Padsala          | 24323822    | vatsalpadsala28082 |
+| Het Patel                | 24498631    |  Het-eng           |
+| Maharshi Patel           | 24747899    | Maharshi1-coder    |
 ## Machines and Vulns
  
 | Machine | Owner | Web | Network | Horizontal PE | Vertical PE | RE |
@@ -19,6 +20,7 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
  
 ## Advanced Vluns
 | **D** | Vraj | AES-CTR nonce reuse | Cryptographic vulnerability | Known-plaintext attack | Keystream recovery | XOR flag decryption |
+| **E** | Maharshi | AI problem injection | AI-related vulnerability | Prompt injection | Instruction override / context manipulation | Protected data and flag extraction |
 ## link to project 
 
 ## link to project 
