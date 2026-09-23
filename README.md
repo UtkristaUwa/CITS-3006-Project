@@ -23,9 +23,10 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 
 
 | **E** | Maharshi | AI problem injection | AI-related vulnerability | Prompt injection | Instruction override / context manipulation | Protected data and flag extraction |
-## link to project 
+
 
 ## link to project 
+
 
 https://uwacyber.gitbook.io/cits3006/cits3006-assessments/project
 
