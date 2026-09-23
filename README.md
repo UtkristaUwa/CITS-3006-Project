@@ -7,7 +7,7 @@ A CTF project consisting of three machines, each with five core vulnerabilities 
 |--------------------------|-------------|----------------|
 | Utkrista Sen             | 24145884    | UtkristaUwa    |
 |  Vatsal Padsala           | 24323822      
-
+| Het Patel                | 24498631 |  Het-eng      |
 ## Machines and Vulns
  
 | Machine | Owner | Web | Network | Horizontal PE | Vertical PE | RE |
