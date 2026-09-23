@@ -3,13 +3,6 @@
 {% block content %}
 <div class="card">
   <h1>Ticket #{{ ticket['id'] }}: {{ ticket['subject'] }}</h1>
-  {% if not is_own_ticket %}
-  <div class="idor-banner">
-    &#9888; You are logged in as <strong>{{ session['username'] }}</strong>, but this ticket
-    belongs to <strong>{{ ticket['username'] }}</strong> ({{ ticket['role'] }}). Nothing
-    stopped you from loading it &mdash; just the ID in the URL changed.
-  </div>
-  {% endif %}
   <p class="meta">Opened by {{ ticket['username'] }} on {{ ticket['created_at'] }}</p>
   <div class="body-text">{{ ticket['body'] }}</div>
   <p style="margin-top:20px;"><a class="ticket-link" href="{{ url_for('dashboard') }}">&larr; Back to my tickets</a></p>
