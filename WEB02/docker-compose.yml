@@ -1,0 +1,7 @@
+services:
+  web02:
+    build: .
+    container_name: cits3006-web02
+    ports:
+      - "192.168.173.128:8083:5000"
+    restart: unless-stopped
