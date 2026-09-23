@@ -1,0 +1,7 @@
+services:
+  web03:
+    build: .
+    container_name: cits3006-web03
+    ports:
+      - "192.168.173.128:8084:5000"
+    restart: unless-stopped
