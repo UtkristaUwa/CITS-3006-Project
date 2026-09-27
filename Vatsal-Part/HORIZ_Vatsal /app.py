@@ -17,7 +17,7 @@ USERS = {
         "password": "Analyst2_Lab_2026!",
         "id": 2,
         "role": "analyst",
-        "note": "CITS3006 HORIZ-03 FLAG: CITS3006{HORIZ03_JWT_FORGERY} -- Next: SUID program /opt/vert03/ctf-vert03 loads libctfhelper.so from the writable folder /opt/vert03/lib"
+        "note": "CITS3006 HORIZ-03 FLAG: CITS3006{HORIZ03_JWT_FORGERY} -- Next: SUID program /usr/local/bin/ctf-vert03 loads libctfhelper.so from the writable folder /opt/vert03/lib"
     }
 }
 
