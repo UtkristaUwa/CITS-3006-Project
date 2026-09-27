@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Running CTF maintenance..."
+cp /var/lib/ctf-maintenance/report.txt /tmp/ctf-report.txt
+echo "Maintenance completed."
