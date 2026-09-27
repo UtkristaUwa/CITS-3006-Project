@@ -1,0 +1,8 @@
+ADV-01 — AES-CTR Nonce Reuse
+
+A protected system encrypted two messages using AES-CTR.
+The same key and nonce were accidentally reused.
+
+Nonce (hex): 43495453333030364e4f4e43453132
+Known ciphertext (hex): 0d3c088fa271ec353c33dd3782e0dd393a97a3ba91deff74824ce85724b29f13f986fe6fee46c7ea040ced05908e62b4e03f295c4c844788a8f6390acf3f9786259a504e50c03b8c401a6dcfdb618d3a296ce09b98ece2
+Flag ciphertext (hex): 0d3c088fa271ec356706eb00dbbfeb1618e4919cb6ffc15da8388b661385fa27dfa7ea

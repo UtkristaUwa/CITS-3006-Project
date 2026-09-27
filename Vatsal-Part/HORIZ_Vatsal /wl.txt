@@ -1,0 +1,7 @@
+secret
+password
+admin
+key
+jwt
+cits3006
+CITS3006

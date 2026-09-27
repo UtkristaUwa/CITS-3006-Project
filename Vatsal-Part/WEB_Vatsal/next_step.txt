@@ -1,0 +1,4 @@
+Internal deployment note (remove before production):
+- Analyst API is exposed on port 8082.
+- Login: analyst1 / Analyst1_Lab_2026!
+- JWT signing secret: CITS3006

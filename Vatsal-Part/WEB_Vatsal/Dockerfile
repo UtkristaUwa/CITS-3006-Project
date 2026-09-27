@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 COPY flag.txt .
+COPY next_step.txt .
 
 EXPOSE 5000
 
