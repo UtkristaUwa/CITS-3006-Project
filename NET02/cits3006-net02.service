@@ -1,0 +1,12 @@
+[Unit]
+Description=CITS3006 NET-02 rsync service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/rsync --daemon --no-detach --config=/etc/rsyncd.conf
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

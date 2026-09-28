@@ -1,0 +1,6 @@
+CITS3006 NET-02 legacy network backup
+
+The backup service was intended for internal synchronisation.
+
+Sensitive training artifact:
+CITS3006{NET02_ANON_RSYNC}
