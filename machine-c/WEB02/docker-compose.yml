@@ -1,7 +1,19 @@
 services:
   web02:
-    build: .
+    build: { context: ., dockerfile: Dockerfile }
     container_name: cits3006-web02
+    environment:
+      - REVIEWER_COOKIE=r3v13w-s3ss-2026
+      - BOT_TOKEN=bot-internal-1f4c
     ports:
       - "192.168.173.128:8083:5000"
+    restart: unless-stopped
+  web02-bot:
+    build: { context: ., dockerfile: Dockerfile.bot }
+    container_name: cits3006-web02-bot
+    environment:
+      - TARGET=http://web02:5000
+      - REVIEWER_COOKIE=r3v13w-s3ss-2026
+      - BOT_TOKEN=bot-internal-1f4c
+    depends_on: [web02]
     restart: unless-stopped

