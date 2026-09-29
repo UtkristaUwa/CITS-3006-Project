@@ -236,7 +236,7 @@
       <text x="288" y="254" class="box-tag">web vuln — TBD</text>
       <text x="288" y="270" class="box-tag">network vuln — TBD</text>
       <text x="288" y="286" class="box-tag">horiz. + vert. PE, RE</text>
-      <text x="288" y="302" class="box-tag" font-weight="700">ADV: AI prompt injection</text>
+      <text x="288" y="302" class="box-tag" font-weight="700">ADV: AES-CTR (crypto)</text>
       <text x="288" y="320" class="box-tag" font-weight="700">owner: TBD</text>
 
       <!-- Machine C -->
@@ -259,12 +259,12 @@
   </div>
 
   <div class="notes">
-    <strong>Design rule:</strong> every machine is fully rootable on its own and hosts its own embedded advanced challenge (A: AES-CTR crypto; B and C: AI prompt injection). There is no separate advanced tier and no cross-machine credential dependency.
+    <strong>Design rule:</strong> every machine is fully rootable on its own and hosts its own embedded advanced challenge (A and B: AES-CTR crypto; C: AI prompt injection). There is no separate advanced tier and no cross-machine credential dependency.
 
     <table class="picks">
       <tr><th>Host</th><th>Role</th><th>IP</th><th>Owner</th><th>Notes</th></tr>
       <tr><td class="host">Machine A</td><td>Public-facing dev/staging server</td><td>10.60.1.10</td><td>TBD</td><td>5 core vulns + embedded ADV (AES-CTR)</td></tr>
-      <tr><td class="host">Machine B</td><td>HR / finance internal box</td><td>10.60.1.11</td><td>TBD</td><td>5 core vulns + embedded ADV (AI prompt injection)</td></tr>
+      <tr><td class="host">Machine B</td><td>HR / finance internal box</td><td>10.60.1.11</td><td>TBD</td><td>5 core vulns + embedded ADV (AES-CTR)</td></tr>
       <tr><td class="host">Machine C</td><td>Ops / support box</td><td>10.60.1.12</td><td>TBD</td><td>5 core vulns + embedded ADV (AI prompt injection)</td></tr>
     </table>
   </div>

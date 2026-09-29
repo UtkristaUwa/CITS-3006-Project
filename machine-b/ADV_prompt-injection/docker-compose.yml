@@ -1,7 +1,0 @@
-services:
-  adv-b:
-    build: .
-    container_name: cits3006-adv-b
-    ports:
-      - "192.168.173.128:8085:5000"
-    restart: unless-stopped

@@ -136,7 +136,7 @@ def seed():
             "Reminder to rotate the ops_svc service account before the Q3 "
             "audit. Current creds for reference: ops_svc / N3twork_Ops_2026! "
             "(used on the build/ops host, port 2222).\n\n"
-            "FLAG{idor_tickets_leak_ops_creds}",
+            "CITS3006{idor_tickets_leak_ops_creds}",
             "2026-07-10 08:21",
         ),
     )

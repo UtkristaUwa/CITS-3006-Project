@@ -106,7 +106,7 @@ find /srv/build/backups -type d -exec chmod 755 {} \;
 find /srv/build/backups -type f -exec chmod 644 {} \;
 
 echo "[*] Planting the flag (root-only)"
-echo "FLAG{PE_V3rt1c4l_H4S_b3En_D0N3}" > /root/flag_vertical.txt
+echo "CITS3006{PE_V3rt1c4l_H4S_b3En_D0N3}" > /root/flag_vertical.txt
 chmod 600 /root/flag_vertical.txt
 
 echo "[*] Sanity checks"

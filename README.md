@@ -1,5 +1,5 @@
 # CITS-3006-Project
-A CTF project consisting of three machines. Each machine has five core vulnerabilities plus one embedded advanced vulnerability (Machine A: AES-CTR nonce reuse; Machines B and C: AI prompt injection).
+A CTF project consisting of three machines. Each machine has five core vulnerabilities plus one embedded advanced vulnerability (Machines A and B: AES-CTR nonce reuse; Machine C: AI prompt injection).
 
 ## Team members
 
@@ -26,7 +26,7 @@ Each is now embedded inside a machine as an extra challenge folder:
 | Machine | Advanced vuln | Category | Built by | Folder |
 |---|---|---|---|---|
 | **A** | AES-CTR nonce reuse | Cryptographic (known-plaintext keystream recovery) | Vraj | `machine-a/ADV_aes-ctr` |
-| **B** | AI prompt injection | AI-related (instruction override / context leak) | Maharshi | `machine-b/ADV_prompt-injection` |
+| **B** | AES-CTR nonce reuse | Cryptographic (known-plaintext keystream recovery) | Vatsal | `machine-b/ADV_aes-ctr` |
 | **C** | AI prompt injection | AI-related (instruction override / context leak) | Maharshi | `machine-c/ADV_prompt-injection` |
 
 **How each is wired in:**
@@ -35,9 +35,9 @@ Each is now embedded inside a machine as an extra challenge folder:
   reused-nonce ciphertext dropped into the pre-audit backup. Solving the AES-CTR nonce
   reuse recovers the passphrase (and the advanced flag), which is what enables vertical
   PE → root. No crypto solve, no vertical PE.
-- **Machine B (AI prompt injection)** runs as a Dockerised assistant on port 8085.
-- **Machine C (AI prompt injection)** runs on port 8086 with a distinct flag, so B and C
-  are independently solvable despite sharing the technique.
+- **Machine B (AES-CTR, Vatsal's build)** is a standalone offline crypto challenge with a
+  B-specific flag, so it is independent of Machine A's AES-CTR.
+- **Machine C (AI prompt injection)** runs as a Dockerised assistant on port 8086.
 
 
 ## link to project 

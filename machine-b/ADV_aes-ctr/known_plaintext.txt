@@ -1,0 +1,1 @@
+CITS3006 training message: the audit record is safe and contains no secret information.

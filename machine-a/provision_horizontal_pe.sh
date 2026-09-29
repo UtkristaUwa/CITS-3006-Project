@@ -87,7 +87,7 @@ chown "${BUILD_USER}:${BUILD_USER}" "${SRV_BUILD}/.ssh/id_ed25519.pub"
 chmod 644 "${SRV_BUILD}/.ssh/id_ed25519.pub"
 
 echo "[*] Planting the flag"
-echo "FLAG{H0RiZ0n7aL_is_D0N3_nd_dUS73d}" > "${BUILD_HOME}/flag_horizontal.txt"
+echo "CITS3006{H0RiZ0n7aL_is_D0N3_nd_dUS73d}" > "${BUILD_HOME}/flag_horizontal.txt"
 chown "${BUILD_USER}:${BUILD_USER}" "${BUILD_HOME}/flag_horizontal.txt"
 chmod 600 "${BUILD_HOME}/flag_horizontal.txt"
 

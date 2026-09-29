@@ -21,14 +21,14 @@ This hits the required minimums exactly: 3 web, 3 network, 3 horizontal PE, 3 ve
 
 **2 Advanced Builders** — own the advanced challenges, now embedded per machine (see below):
 - AES-CTR nonce reuse — Builder: Vraj — embedded in **Machine A** (`machine-a/ADV_aes-ctr`)
-- AI prompt injection — Builder: Maharshi — embedded in **Machine B and Machine C** (`machine-{b,c}/ADV_prompt-injection`)
+- AES-CTR nonce reuse (Vatsal's build) — embedded in **Machine B** (`machine-b/ADV_aes-ctr`)
+- AI prompt injection — Builder: Maharshi — embedded in **Machine C** (`machine-c/ADV_prompt-injection`)
 
 **Design change (team decision):** the advanced challenges are no longer two separate
 Restricted-VLAN hosts reached by fan-in. Each is embedded directly inside a machine as
-an extra challenge folder. Machine A carries AES-CTR; Machines B and C both carry the AI
-prompt injection (Machine C uses a distinct flag). Two distinct advanced *types* are
-still present. Note this means the AI injection type is reused across B and C — confirm
-that's acceptable against the rubric before submission.
+an extra challenge folder. Machines A and B carry AES-CTR (distinct flags); Machine C
+carries the AI prompt injection. Two distinct advanced *types* are still present. Note
+the AES-CTR type is reused across A and B — confirm that's acceptable against the rubric.
 
 ## Network topology
 
@@ -51,6 +51,6 @@ inside the machines that host them.
 ## Open items
 
 - Assign names to the 5 role labels above, and also mention which vlun you are planning to use when youve researched it. ( FCFS ig)
-- Advanced challenges chosen: AES-CTR (crypto) on A, AI prompt injection on B and C.
+- Advanced challenges chosen: AES-CTR (crypto) on A and B, AI prompt injection on C.
 - Nail down the shared network's theme/narrative and IP scheme.
 - Individual contribution logging: given the workload isn't perfectly even (machine builders build 5 vulns each vs. 1 for advanced builders, offset by advanced builders taking on cross-testing/integration), SO HELP OTHER WHEN DONE AND ASK FOR HELP WHEN NEEDED 

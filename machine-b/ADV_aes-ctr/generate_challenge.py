@@ -1,22 +1,17 @@
 from Crypto.Cipher import AES
 from pathlib import Path
-import os
 
-KEY = b"CITS3006_ADV1KEY"          # 16-byte training key
-NONCE = b"CITS3006NONCE12"        # 15 bytes; CTR nonce
+KEY   = b"CITS3006_ADV1KEY"    # 16-byte key
+NONCE = b"CITS3006NONCE12"     # 15-byte nonce - reused for both (the bug)
 
 known_plaintext = (
     b"CITS3006 training message: the audit record is safe and "
     b"contains no secret information."
 )
+flag = b"CITS3006{ADV01_AES_CTR_NONCE_REUSE_B}"
 
-flag = b"CITS3006{ADV01_AES_CTR_NONCE_REUSE}"
-
-cipher1 = AES.new(KEY, AES.MODE_CTR, nonce=NONCE)
-ciphertext_known = cipher1.encrypt(known_plaintext)
-
-cipher2 = AES.new(KEY, AES.MODE_CTR, nonce=NONCE)
-ciphertext_flag = cipher2.encrypt(flag)
+ciphertext_known = AES.new(KEY, AES.MODE_CTR, nonce=NONCE).encrypt(known_plaintext)
+ciphertext_flag  = AES.new(KEY, AES.MODE_CTR, nonce=NONCE).encrypt(flag)
 
 Path("known_plaintext.txt").write_bytes(known_plaintext)
 Path("challenge.txt").write_text(
@@ -27,7 +22,5 @@ Path("challenge.txt").write_text(
     f"Known ciphertext (hex): {ciphertext_known.hex()}\n"
     f"Flag ciphertext (hex): {ciphertext_flag.hex()}\n"
 )
-
 Path("adv01_flag.txt").write_bytes(flag)
-
 print("ADV-01 challenge generated.")
