@@ -193,7 +193,7 @@
   </div>
 
   <div class="canvas-wrap">
-    <svg viewBox="0 0 1040 620" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 1040 380" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"></path>
@@ -220,78 +220,52 @@
       <line x1="405" y1="86" x2="405" y2="120" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></line>
 
       <!-- Machine A -->
-      <rect x="70" y="190" width="170" height="120" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
+      <rect x="70" y="190" width="170" height="150" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
       <text x="88" y="216" class="box-title">Machine A</text>
       <text x="88" y="234" class="box-ip">10.60.1.10</text>
       <text x="88" y="254" class="box-tag">web vuln (foothold) — TBD</text>
       <text x="88" y="270" class="box-tag">network vuln — TBD</text>
       <text x="88" y="286" class="box-tag">horiz. + vert. PE, RE</text>
-      <text x="88" y="302" class="box-tag" font-weight="700">owner: TBD</text>
+      <text x="88" y="302" class="box-tag" font-weight="700">ADV: AES-CTR (crypto)</text>
+      <text x="88" y="320" class="box-tag" font-weight="700">owner: TBD</text>
 
       <!-- Machine B -->
-      <rect x="270" y="190" width="170" height="120" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
+      <rect x="270" y="190" width="170" height="150" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
       <text x="288" y="216" class="box-title">Machine B</text>
       <text x="288" y="234" class="box-ip">10.60.1.11</text>
       <text x="288" y="254" class="box-tag">web vuln — TBD</text>
       <text x="288" y="270" class="box-tag">network vuln — TBD</text>
       <text x="288" y="286" class="box-tag">horiz. + vert. PE, RE</text>
-      <text x="288" y="302" class="box-tag" font-weight="700">owner: TBD</text>
+      <text x="288" y="302" class="box-tag" font-weight="700">ADV: AI prompt injection</text>
+      <text x="288" y="320" class="box-tag" font-weight="700">owner: TBD</text>
 
       <!-- Machine C -->
-      <rect x="470" y="190" width="170" height="120" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
+      <rect x="470" y="190" width="170" height="150" rx="10" fill="var(--series-1-soft)" stroke="var(--series-1)" stroke-width="1.5"></rect>
       <text x="488" y="216" class="box-title">Machine C</text>
       <text x="488" y="234" class="box-ip">10.60.1.12</text>
       <text x="488" y="254" class="box-tag">web vuln — TBD</text>
       <text x="488" y="270" class="box-tag">network vuln — TBD</text>
       <text x="488" y="286" class="box-tag">horiz. + vert. PE, RE</text>
-      <text x="488" y="302" class="box-tag" font-weight="700">owner: TBD</text>
+      <text x="488" y="302" class="box-tag" font-weight="700">ADV: AI prompt injection</text>
+      <text x="488" y="320" class="box-tag" font-weight="700">owner: TBD</text>
 
-      <!-- Restricted VLAN tier -->
-      <rect x="180" y="420" width="420" height="150" rx="12" fill="none" stroke="var(--series-2)" stroke-width="1.5" stroke-dasharray="5 4"></rect>
-      <text x="196" y="444" class="tier-label">Restricted VLAN — 10.60.2.0/24</text>
-      <text x="196" y="460" class="tier-sub">not directly routable — reached by pivoting w/ creds from A/B/C</text>
 
-      <!-- Adv 1 -->
-      <rect x="210" y="480" width="170" height="70" rx="10" fill="var(--series-2-soft)" stroke="var(--series-2)" stroke-width="1.5"></rect>
-      <text x="228" y="504" class="box-title">Adv. Service #1</text>
-      <text x="228" y="520" class="box-ip">10.60.2.20 · AI assistant</text>
-      <text x="228" y="536" class="box-tag" font-weight="700">owner: TBD</text>
 
-      <!-- Adv 2 -->
-      <rect x="420" y="480" width="170" height="70" rx="10" fill="var(--series-2-soft)" stroke="var(--series-2)" stroke-width="1.5"></rect>
-      <text x="438" y="504" class="box-title">Adv. Service #2</text>
-      <text x="438" y="520" class="box-ip">10.60.2.21 · Kernel/Windows</text>
-      <text x="438" y="536" class="box-tag" font-weight="700">owner: TBD</text>
-
-      <!-- Fan-in credential arrows -->
-      <path d="M 155 310 C 155 400, 250 420, 295 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
-      <path d="M 555 310 C 555 400, 400 420, 315 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
-      <path d="M 355 310 C 355 400, 460 420, 495 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
-      <path d="M 585 310 C 585 400, 540 420, 515 480" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrow)"></path>
-
-      <text x="130" y="400" class="edge-label">creds</text>
-      <text x="470" y="400" class="edge-label">creds</text>
-      <text x="360" y="422" class="edge-label">creds</text>
-      <text x="560" y="422" class="edge-label">creds</text>
     </svg>
   </div>
 
   <div class="legend">
-    <div class="legend-item"><span class="swatch" style="background:var(--series-1)"></span>Office LAN tier (A / B / C, self-contained root paths)</div>
-    <div class="legend-item"><span class="swatch" style="background:var(--series-2)"></span>Restricted VLAN tier (advanced services, fan-in only)</div>
-    <div class="legend-item"><span class="legend-line"></span>Credential path (rooting a machine unlocks the arrow's target)</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--series-1)"></span>Office LAN — A / B / C, each self-contained and carrying its own embedded advanced challenge</div>
   </div>
 
   <div class="notes">
-    <strong>Design rule:</strong> every machine in the Office LAN tier is fully rootable on its own — nothing in that tier depends on the Restricted VLAN. The two advanced services are fan-in points reached by two alternate routes each (A or C → Adv 1; B or C → Adv 2), never a loop back out.
+    <strong>Design rule:</strong> every machine is fully rootable on its own and hosts its own embedded advanced challenge (A: AES-CTR crypto; B and C: AI prompt injection). There is no separate advanced tier and no cross-machine credential dependency.
 
     <table class="picks">
       <tr><th>Host</th><th>Role</th><th>IP</th><th>Owner</th><th>Notes</th></tr>
-      <tr><td class="host">Machine A</td><td>Public-facing dev/staging server</td><td>10.60.1.10</td><td>TBD</td><td>web vuln = initial foothold</td></tr>
-      <tr><td class="host">Machine B</td><td>HR / finance internal box</td><td>10.60.1.11</td><td>TBD</td><td>fits IDOR/CSRF-style access issues</td></tr>
-      <tr><td class="host">Machine C</td><td>Ops / support box</td><td>10.60.1.12</td><td>TBD</td><td>fits internal/network-facing vulns</td></tr>
-      <tr><td class="host">Adv. Service #1</td><td>Internal AI support-ticket assistant</td><td>10.60.2.20</td><td>TBD</td><td>reachable via A or C creds</td></tr>
-      <tr><td class="host">Adv. Service #2</td><td>Legacy build/CI server (kernel/Windows)</td><td>10.60.2.21</td><td>TBD</td><td>reachable via B or C creds</td></tr>
+      <tr><td class="host">Machine A</td><td>Public-facing dev/staging server</td><td>10.60.1.10</td><td>TBD</td><td>5 core vulns + embedded ADV (AES-CTR)</td></tr>
+      <tr><td class="host">Machine B</td><td>HR / finance internal box</td><td>10.60.1.11</td><td>TBD</td><td>5 core vulns + embedded ADV (AI prompt injection)</td></tr>
+      <tr><td class="host">Machine C</td><td>Ops / support box</td><td>10.60.1.12</td><td>TBD</td><td>5 core vulns + embedded ADV (AI prompt injection)</td></tr>
     </table>
   </div>
 

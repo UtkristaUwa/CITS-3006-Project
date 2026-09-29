@@ -1,0 +1,9 @@
+ADV (Machine A) - AES-CTR Nonce Reuse
+
+The pre-audit backup tool encrypted two records with AES-CTR and reused the
+same key+nonce. One record (the audit log) is recoverable in the clear from
+audit_record_sample.txt; the other holds the sysadmin key passphrase.
+
+Nonce (hex): 43495453333030364e4f4e43453132
+Audit-log ciphertext (hex): 03300e95d5089d4d3c08ff05cbcfe11314e3ee93adeabe21d744fe0e7ce09242b5d8b769a141d6e0051ba9558b986fa6f43d25080d9954cdaee9771dc13b899960805a0a18853691050d38d5c1688f2d362df09383e3ec0b3ac3bd679d50b78622dbdacbee03e49cac2bac960a28368ab9a33572904e47a3b4f366ae0d7274a4fc98c5bbc61c8fae2935e85e22054c5a87fb33595131
+Protected-secret ciphertext (hex): 3d0c2fbdf52cb56d3c34dc3ecbe5d12e7dc7afac91ddf6618605ad196c9a8c00e586fe7aa06be6ba1d5f8366b0a911f4b1697a076cae7598fac6163bfd09baa157ab71216de61da1772b18f5f07ae8

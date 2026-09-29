@@ -4,7 +4,9 @@ CITS3006 CTF project — Machine A. Public-facing dev/staging server for the
 fictional company Meridian Robotics (an internal ticketing portal).
 
 Vulns: web (IDOR), network (ARP spoofing / plaintext creds), horizontal PE
-(group misconfig), vertical PE (leaked backup), RE (XOR-encoded binary).
+(group misconfig), vertical PE (leaked backup, gated by the advanced crypto below), RE (XOR-encoded
+binary), and an embedded advanced challenge — AES-CTR nonce reuse (`ADV_aes-ctr/`),
+wired in as the step that unlocks the sysadmin passphrase for vertical PE.
 Full write-up, sample solves, and flags: see the Exploit Report and Solve
 Guide docs.
 
@@ -24,6 +26,9 @@ sudo bash provision_horizontal_pe.sh
 sudo bash provision_vertical_pe.sh
 sudo bash provision_re.sh
 ```
+
+(The AES-CTR advanced challenge needs no separate step — `provision_vertical_pe.sh`
+folds its capture files into the sysadmin backup.)
 
 
 ## Full attack chain and how it is meant to be solved
@@ -53,9 +58,12 @@ sudo bash provision_re.sh
          ops_svc is in `deploy` → deploy can READ /srv/build/.ssh/id_ed25519
          → ssh -i stolen_key build@A  → FLAG 3 (/home/build/flag_horizontal.txt)
                                 │
-                                ▼  VERTICAL PE (leaked backup)
+                                ▼  ADVANCED (AES-CTR nonce reuse)  ── now IN the chain
          as build, read /srv/build/backups/pre-audit-2026-07-09/sysadmin_home.tar.gz
-          → contains sysadmin's ENCRYPTED ssh key + backup_notes.txt (passphrase M3ridian_D3v!)
+          → sysadmin's ENCRYPTED ssh key + audit_capture.txt (2 ciphertexts, reused nonce)
+             + audit_record_sample.txt (known plaintext)
+          → recover keystream → decrypt → passphrase M3ridian_D3v! + ADV FLAG
+                                ▼  VERTICAL PE (leaked backup + recovered passphrase)
          → ssh -i sysadmin_key (passphrase) sysadmin@A
           → sysadmin has NOPASSWD sudo → sudo cat /root/flag_vertical.txt → FLAG 4
 

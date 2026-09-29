@@ -8,9 +8,11 @@
 #
 # Vuln: `build` (from horizontal PE) can already read
 # /srv/build/backups/pre-audit-2026-07-09/, which holds a "pre-audit backup"
-# of sysadmin's home dir — their encrypted SSH key plus a note disclosing
-# the passphrase. sysadmin has no password (key-only, sudo NOPASSWD), so
-# that archive is the only way in. Full write-up: see the Exploit Report doc.
+# of sysadmin's home dir — their encrypted SSH key plus the key passphrase,
+# which is NOT in the clear: it is protected by the ADV AES-CTR challenge
+# (audit_capture.txt) whose key+nonce were reused, so it is recoverable.
+# sysadmin has no password (key-only, sudo NOPASSWD), so that archive — once
+# the passphrase is broken — is the only way in. See the Exploit Report doc.
 #
 set -euo pipefail
 
@@ -77,12 +79,25 @@ cat > "${D}/sysadmin_home/backup_notes.txt" <<'EOF'
 Pre-audit sweep 2026-07-09. Backed up jchen/mfoster/sysadmin home dirs
 per checklist item 4.2 ahead of the Q3 audit.
 
-NOTE: had to reset sysadmin's key passphrase to the default value
-(M3ridian_D3v!) to get the automated backup-verify step to pass.
-MUST rotate it back before Friday's audit -- do not forget this time.
+NOTE: not writing sysadmin's key passphrase here in the clear this time
+(last audit flagged exactly that). It was run through the ops audit-encryption
+tool together with the routine audit log -- both are in audit_capture.txt in
+this archive, and audit_record_sample.txt is the plaintext of the audit log.
+The tool reused the same audit key + nonce for both records again, though.
 
 -- ops_svc
 EOF
+
+# --- Chain link: fold in the ADV (AES-CTR) capture so the passphrase is
+# recoverable ONLY by breaking the reused key/nonce. audit_record_sample.txt
+# is the known plaintext; audit_capture.txt holds both ciphertexts. ---
+ADV_DIR="$(dirname "$0")/ADV_aes-ctr"
+if [[ ! -f "${ADV_DIR}/challenge.txt" || ! -f "${ADV_DIR}/known_plaintext.txt" ]]; then
+  echo "Missing ADV_aes-ctr capture files next to this script." >&2
+  exit 1
+fi
+cp "${ADV_DIR}/challenge.txt"       "${D}/sysadmin_home/audit_capture.txt"
+cp "${ADV_DIR}/known_plaintext.txt" "${D}/sysadmin_home/audit_record_sample.txt"
 tar -czf "${BACKUP_DIR}/sysadmin_home.tar.gz" -C "${D}" "sysadmin_home"
 rm -rf "${D}" "${KEY_TMP}"
 
@@ -115,8 +130,10 @@ cat <<EOF
 
 Done.
 
-  - sysadmin login is key-only; the encrypted key AND its passphrase both
-    have to come from the backup archive. Passphrase: ${SYSADMIN_PASSPHRASE}
+  - sysadmin login is key-only. The encrypted key comes from the backup, but
+    the passphrase is NO LONGER in the clear -- it must be recovered by solving
+    the AES-CTR nonce reuse in audit_capture.txt (ADV challenge). Builder ref:
+    the passphrase is ${SYSADMIN_PASSPHRASE} and the ADV flag falls out with it.
   - sudo for sysadmin is NOPASSWD (locked password can't back a prompt).
   - Flag: /root/flag_vertical.txt, root-only, readable via 'sudo cat'.
 EOF
