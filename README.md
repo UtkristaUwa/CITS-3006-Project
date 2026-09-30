@@ -26,7 +26,7 @@ Each is now embedded inside a machine as an extra challenge folder:
 | Machine | Advanced vuln | Category | Built by | Folder |
 |---|---|---|---|---|
 | **A** | AES-CTR nonce reuse | Cryptographic (known-plaintext keystream recovery) | Vraj | `machine-a/ADV_aes-ctr` |
-| **B** | AES-CTR nonce reuse | Cryptographic (known-plaintext keystream recovery) | Vatsal | `machine-b/ADV_aes-ctr` |
+| **B** | AES-CTR nonce reuse | Cryptographic (known-plaintext keystream recovery) | Vraj | `machine-b/ADV_aes-ctr` |
 | **C** | AI prompt injection | AI-related (instruction override / context leak) | Maharshi | `machine-c/ADV_prompt-injection` |
 
 **How each is wired in:**
