@@ -25,6 +25,15 @@ Locate the multi-byte `KEY` and the `flag_enc` array in the binary and XOR them
 with the repeating key (`flag_enc[i] ^ KEY[i % len(KEY)]`) to recover the flag
 directly — the validation gate is not required to reach it.
 
+## Chain position
+This binary is **post-root loot**: the VERT-02 setup drops it at `/root/re02`
+(root-only), so it is only reachable after the VERT-02 root compromise. The
+recovered token (`CITS3006{RE02_XOR_DATAFLOW}`) — and/or the validation code
+`UNLOCK-3006-META` — is the **maintenance override** that unlocks the master
+flag from the AI assistant (ADV prompt injection).
+
+`VERT-02 (root) → RE-02 (this) → ADV (master flag)`
+
 ## Flag
 CITS3006{RE02_XOR_DATAFLOW}
 

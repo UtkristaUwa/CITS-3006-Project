@@ -14,6 +14,14 @@ CITS3006{ADV02C_PROMPT_INJECTION_MACHINE_C}
 
 FLAG = "CITS3006{ADV02C_PROMPT_INJECTION_MACHINE_C}"
 
+# Chain finale (RE-02 -> ADV):
+# The prompt-injection flag above is still recoverable on its own (Maharshi's
+# original challenge). The Machine C *master* flag, however, is only released
+# when the injection ALSO supplies the maintenance override token recovered by
+# reverse-engineering RE-02 (the binary looted from /root after VERT-02 root).
+RE02_OVERRIDE_TOKENS = ("CITS3006{RE02_XOR_DATAFLOW}", "UNLOCK-3006-META")
+MASTER_FLAG = "CITS3006{MACHINE_C_CHAIN_COMPLETE}"
+
 @app.route("/")
 def index():
     return """
@@ -34,6 +42,16 @@ def vulnerable_assistant(user_prompt):
     combined = SYSTEM_PROMPT + "\nUSER MESSAGE:\n" + user_prompt
 
     lower = user_prompt.lower()
+
+    # Chain finale: an injection carrying the RE-02 override token unlocks the
+    # Machine C master flag. Checked first so the token path takes priority.
+    injected = ("ignore previous instructions" in lower) or ("override" in lower)
+    if injected and any(tok.lower() in lower for tok in RE02_OVERRIDE_TOKENS):
+        return (
+            "Maintenance override accepted.\n"
+            "Full-chain master flag released:\n"
+            + MASTER_FLAG
+        )
 
     # Training-simulator behaviour representing an AI assistant
     # incorrectly following instructions embedded in the user prompt.

@@ -138,7 +138,12 @@ def review():
         '<div class="card">'
         '<h1>Internal Review Console</h1>'
         '<div class="console"><div id="review-status" class="ok">Reviewer access granted.</div>'
-        '<div id="review-secret">' + FLAG + '</div></div>'
+        '<div id="review-secret">' + FLAG + '</div>'
+        # Chain pivot: the reviewer-only console also carries an internal ops note.
+        # Exfiltrating it points the attacker at the next stage (NET-02 rsync).
+        '<div id="review-note">INTERNAL OPS: legacy file-sync is still exposed via '
+        'rsync on tcp/1873 (module: legacy-sync). Pull it and rotate the analyst '
+        'credentials before the audit.</div></div>'
         '</div>'
     )
     return page("Review Console — Halcyon Systems", body)

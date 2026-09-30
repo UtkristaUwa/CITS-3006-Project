@@ -15,7 +15,11 @@ USERS = {
         "username": "analyst2",
         "password": "Analyst2_Lab_2026!",
         "role": "analyst",
-        "note": "CITS3006 HORIZ-02 FLAG: CITS3006{HORIZ02_IDOR_OBJECT}"
+        # Chain pivot: reading analyst2's record via IDOR also leaks the shell
+        # foothold used for the next stage (VERT-02 SUID PATH hijack as ctfuser).
+        "note": ("CITS3006 HORIZ-02 FLAG: CITS3006{HORIZ02_IDOR_OBJECT}\n"
+                 "Handover note: temporary maintenance foothold on the host — "
+                 "ssh ctfuser@<machine-C>  /  password: Ctf_Foothold_2026!")
     }
 }
 
