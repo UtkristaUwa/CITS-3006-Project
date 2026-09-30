@@ -9,6 +9,7 @@ A CTF project consisting of three machines. Each machine has five core vulnerabi
 |  Vatsal Padsala          | 24323822    | vatsalpadsala28082 |
 | Het Patel                | 24498631    |  Het-eng           |
 | Maharshi Patel           | 24747899    | Maharshi1-coder    |
+| Vraj  Hirpara            | 24561231    | Vrajhirpara        |
 ## Machines and Vulns
  
 | Machine | Owner | Web | Network | Horizontal PE | Vertical PE | RE |
@@ -29,28 +30,14 @@ Each is now embedded inside a machine as an extra challenge folder:
 | **B** | AES-CTR nonce reuse | Cryptographic (known-plaintext keystream recovery) | Vraj | `machine-b/ADV_aes-ctr` |
 | **C** | AI prompt injection | AI-related (instruction override / context leak) | Maharshi | `machine-c/ADV_prompt-injection` |
 
-**How each is wired in:**
-- **Machine A (AES-CTR)** is a *required link in the root path*, not a side-quest. The
-  sysadmin SSH-key passphrase is no longer stored in the clear — it is protected by the
-  reused-nonce ciphertext dropped into the pre-audit backup. Solving the AES-CTR nonce
-  reuse recovers the passphrase (and the advanced flag), which is what enables vertical
-  PE → root. No crypto solve, no vertical PE.
-- **Machine B (AES-CTR, Vatsal's build)** is a standalone offline crypto challenge with a
-  B-specific flag, so it is independent of Machine A's AES-CTR.
-- **Machine C (AI prompt injection)** runs as a Dockerised assistant on port 8086.
 
+## Repository layout
 
-## link to project 
-
-
-https://uwacyber.gitbook.io/cits3006/cits3006-assessments/project
-
-
-## Grading 
-
-25% Creating CTF Challenges (T1) 
-10% Solving Live (T2-1) 
-15% Solving All Challenges (T2-2) 
-25% Live Demo (T3) 
-25% Individual Contributions (T1–T3).
-
+.
+├── machine-a/ # Meridian Robotics dev portal (self-contained)
+│ └── ADV_aes-ctr/ # embedded advanced crypto challenge
+├── machine-b/ # Evergreen Analytics (self-contained)
+│ └── ADV_aes-ctr/ # embedded advanced crypto challenge
+├── machine-c/ # self-contained
+│ └── ADV_prompt-injection/
+└── README.md
