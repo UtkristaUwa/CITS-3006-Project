@@ -14,6 +14,13 @@ located via `$PATH`. Because it also sets the real UID/GID to root, the spawned
 shell keeps root privileges, and any attacker-controlled `cp` earlier in `$PATH`
 executes as root.
 
+## Chain position
+The `ctfuser` foothold is **not** free — its SSH credentials are leaked by the
+HORIZ-02 IDOR (analyst2's handover note). SSH in as `ctfuser`, then hijack `cp`
+via the SUID `ctf-maintenance` binary to reach root — the end of the chain.
+
+`HORIZ-02 (IDOR) → ssh ctfuser → VERT-02 (this) → root`
+
 ## Setup (run as root on the VM)
 ```bash
 cd machine-c/VERT_02

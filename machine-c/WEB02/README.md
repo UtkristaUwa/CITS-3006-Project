@@ -40,5 +40,13 @@ docker compose up --build      # starts web02 (:8083) and the reviewer bot
    `/review` and posts the secret to `/exfil`.
 4. Retrieve it from `/stolen`.
 
+## Chain position
+The reviewer-only `/review` console returns the WEB-02 flag **and** an internal
+ops note. Exfiltrating that note via the XSS reveals that the legacy rsync
+service (tcp/1873, module `legacy-sync`) is still exposed — the entry point for
+NET-02. WEB-02 is therefore the recon foothold at the top of the chain.
+
+`WEB-02 (this) → NET-02 (rsync) → HORIZ-02 (IDOR) → VERT-02 (SUID root)`
+
 ## Flag
 CITS3006{WEB02_REFLECTED_XSS}

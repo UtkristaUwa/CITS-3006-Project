@@ -21,6 +21,14 @@ An rsync daemon was exposed on TCP port 1873 with an anonymously accessible modu
 6. Download network-backup.txt without authentication.
 7. Recover the NET-02 flag from the exposed backup.
 
+## Chain position
+The pre-audit config dump inside `network-backup.txt` also leaks the `analyst1`
+credentials for the Halcyon Systems Analyst Console (HORIZ-02). This stage is
+reached from the WEB-02 reviewer console, whose internal ops note discloses that
+the rsync service on tcp/1873 is still exposed.
+
+`WEB-02 (XSS) → NET-02 (this) → HORIZ-02 (IDOR)`
+
 ## Flag
 CITS3006{NET02_ANON_RSYNC}
 

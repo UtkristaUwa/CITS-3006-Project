@@ -4,3 +4,9 @@ The backup service was intended for internal synchronisation.
 
 Sensitive training artifact:
 CITS3006{NET02_ANON_RSYNC}
+
+--- pre-audit configuration dump (do not distribute) ---
+Halcyon Systems Analyst Console: http://<machine-C>:5000/
+Recovered analyst credentials pending rotation:
+  username: analyst1
+  password: Analyst1_Lab_2026!
