@@ -1,6 +1,10 @@
 # CITS-3006-Project
 A CTF project consisting of three machines. Each machine has five core vulnerabilities plus one embedded advanced vulnerability (Machines A and B: AES-CTR nonce reuse; Machine C: AI prompt injection).
 
+
+## Group name
+- Lets_do_it
+
 ## Team members
 
 | NAME                     | StudentID   |   GitHubID         |
@@ -20,9 +24,6 @@ A CTF project consisting of three machines. Each machine has five core vulnerabi
 
  
 ## Advanced Vulns (embedded per machine)
-
-The two advanced challenges are no longer separate hosts on a Restricted VLAN.
-Each is now embedded inside a machine as an extra challenge folder:
 
 | Machine | Advanced vuln | Category | Built by | Folder |
 |---|---|---|---|---|
