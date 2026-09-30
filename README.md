@@ -33,12 +33,14 @@ A CTF project consisting of three machines. Each machine has five core vulnerabi
 
 
 ## Repository layout
-
+```
 .
-├── machine-a/ # Meridian Robotics dev portal (self-contained)
-│ └── ADV_aes-ctr/ # embedded advanced crypto challenge
-├── machine-b/ # Evergreen Analytics (self-contained)
-│ └── ADV_aes-ctr/ # embedded advanced crypto challenge
-├── machine-c/ # self-contained
-│ └── ADV_prompt-injection/
+├── machine-a/            # Meridian Robotics dev portal (self-contained)
+│   └── ADV_aes-ctr/      # embedded advanced crypto challenge
+├── machine-b/            # Evergreen Analytics (self-contained)
+│   └── ADV_aes-ctr/      # embedded advanced crypto challenge
+├── machine-c/            # self-contained
+│   └── ADV_prompt-injection/
+├── docs/                 # design notes: network topology, decisions, briefs
 └── README.md
+```
