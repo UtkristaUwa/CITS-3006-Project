@@ -41,6 +41,5 @@ A CTF project consisting of three machines. Each machine has five core vulnerabi
 │   └── ADV_aes-ctr/      # embedded advanced crypto challenge
 ├── machine-c/            # self-contained
 │   └── ADV_prompt-injection/
-├── docs/                 # design notes: network topology, decisions, briefs
 └── README.md
 ```
